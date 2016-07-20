@@ -1,12 +1,16 @@
 # -*- coding: UTF-8 -*-
 import json
+import logging
 import string
 
-from django.core.urlresolvers import reverse
+from django.http.response import HttpResponse
 from django.shortcuts import render
+import simplejson
 
 from loadtest.models import LoadTestResult
 
+logger = logging.getLogger(__name__)
+logger.info("12345666666666666")
 
 def about(request):
     return render(request, 'loadtest/about.html')
@@ -25,8 +29,27 @@ def show(request):
             'test_errors': test_errors,
         })
 
-def insert_test_result():
-    pass
+def insert_test_result(request):
+    logger.info("info")
+    logger.error("error")
+    logger.debug("debug")
+    logger.warn("warn")
+    '''
+    dict = {}
+    info = 'Data log save success'
+    try:
+        if request.method == 'POST':
+            data = simplejson.loads(request.raw_post_data)
+            # username = request['username']
+            print data
+            
+    except Exception, e:
+        logger.error('Failed to insert load test result', e)
+ 
+    dict['message'] = info
+    json = simplejson.dumps(dict)
+    '''
+    return HttpResponse("2000000")
 
 def _get_armcharts_column_list(benchmark_result):
     convert_column_list = []

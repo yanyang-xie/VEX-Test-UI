@@ -18,7 +18,8 @@ Including another URLconf
 from django.conf.urls import url
 
 urlpatterns = [
-    url(r'^showLoadtestResult$', 'loadtest.views.show', name='showLoadtestResult'),
     url(r'^$', 'loadtest.views.show', name='index'),
-    url(r'^about$', 'loadtest.views.about', name='about'),
+    url(r'^showLoadtestResult$', 'loadtest.views.show', name='showLoadtestResult'),
+    url(r'^insert', 'loadtest.views.insert_test_result', name='insert'),
+    url(r'^about', 'loadtest.views.about', name='about'),
 ]

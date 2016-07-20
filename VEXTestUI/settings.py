@@ -26,7 +26,7 @@ SECRET_KEY = 'cwe8m@a-kvqq@wzg)hhjsr*=e2a5lig+3!0wng2b4(x)mtk6s9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*', '127.0.0.1']
 
 
 # Application definition
@@ -44,7 +44,7 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -90,7 +90,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'zh-cn'
+LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
@@ -110,65 +110,46 @@ STATIC_URL = '/static/'
 LOG_FILE = BASE_DIR + "/all.log"
 
 LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-
-        'filters': {
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse'
-                }
-            },
-        'formatters': {
-            'simple': {
-                'format': '[%(levelname)s] %(module)s : %(message)s'
-                },
-            'verbose': {
-                'format':
-                    '[%(asctime)s] [%(levelname)s] %(module)s : %(message)s'
-                }
-            },
-
-        'handlers': {
-            'null': {
-                'level': 'DEBUG',
-                'class': 'django.utils.log.NullHandler',
-                },
-            'console': {
-                'level': 'INFO',
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
-                },
-            'file': {
-                'level': 'DEBUG',
-                'class': 'logging.FileHandler',
-                'formatter': 'verbose',
-                'filename': LOG_FILE,
-                'mode': 'a',
-                },
-            'mail_admins': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler',
-                'filters': ['require_debug_false']
-                }
-            },
-        'loggers': {
-            '': {
-                'handlers': ['file', 'console'],
-                'level': 'INFO',
-                'propagate': True,
-                },
-            'django': {
-                'handlers': ['file', 'console'],
-                'level': 'DEBUG',
-                'propagate': True,
-                },
-            'django.request': {
-                'handlers': ['mail_admins', 'console'],
-                'level': 'ERROR',
-                'propagate': True,
-                },
-            }
-        }
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+       'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOG_FILE,
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        '': {
+            'handlers': ['logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
+}
 
 
 # cache配置
