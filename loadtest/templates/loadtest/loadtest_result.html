@@ -3,12 +3,13 @@
 {% block header %}
 <script>
             var chart;
-			var chartData = {{ results |safe }};
+			var index_result_data = {{ index_results |safe }};
+			var bitrate_result_data = {{ bitrate_results |safe }};
             
             AmCharts.ready(function () {
                 // SERIAL CHART
                 chart = new AmCharts.AmSerialChart();
-                chart.dataProvider = chartData;
+                chart.dataProvider = index_result_data;
                 chart.categoryField = "ResponseTime";
                 chart.startDuration = 1;
 
@@ -54,7 +55,7 @@
                 ////////////////////////////////////
                 // SERIAL CHART
                 chart2 = new AmCharts.AmSerialChart();
-                chart2.dataProvider = [{'color': '#FF0F00', 'Client': '17217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];;
+                chart2.dataProvider = bitrate_result_data;
                 chart2.categoryField = "ResponseTime";
                 chart2.startDuration = 1;
 
@@ -102,6 +103,7 @@
 
 {% block main %}
 	<p>.</p><p>.</p>
+	<div class="row">
 	<div class="col-md-5">
 		<div class="text-info">Index Response Time Distribution</div>
     	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
@@ -110,7 +112,17 @@
     
     </div>
     <div class="col-md-5">
-    	<div class="text-info">     Bitrate Response Time Distribution</div>
+    	<div class="text-info">Bitrate Response Time Distribution</div>
     	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
     </div>
+    </div>
+    {% if test_errors %}
+    <div class="row">
+    	<div class="text-info">Test ERROR:</div>
+    	<div class="col-md-12">
+    	<textarea id="note-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_errors | safe }}
+ 		</textarea>
+    	</div>
+    </div>
+    {% endif %}
 {% endblock%}

@@ -14,13 +14,21 @@ def about(request):
 def show(request):
     # List = [{'color': '#FF0F00', 'Client': '7217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];
     loadtest_results = LoadTestResult.objects.all();
-    results = get_armcharts_column_list(loadtest_results[0].test_result)
+    lastest_load_test_result = loadtest_results[0];
+    index_results = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
+    bitrate_results = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
+    test_errors = lastest_load_test_result.test_result_error
+    print type(test_errors)
     
     return render(request, 'loadtest/loadtest_result.html', {
-            'results': json.dumps(results),
+            'index_results': json.dumps(index_results), 'bitrate_results': json.dumps(bitrate_results),
+            'test_errors': test_errors,
         })
 
-def get_armcharts_column_list(benchmark_result):
+def insert_test_result():
+    pass
+
+def _get_armcharts_column_list(benchmark_result):
     convert_column_list = []
     for line in benchmark_result.split('\n'):
         if string.strip(line) == '':
