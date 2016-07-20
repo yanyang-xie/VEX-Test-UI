@@ -1,0 +1,116 @@
+{% extends "./loadtest/base.html" %}
+
+{% block header %}
+<script>
+            var chart;
+			var chartData = {{ results |safe }};
+            
+            AmCharts.ready(function () {
+                // SERIAL CHART
+                chart = new AmCharts.AmSerialChart();
+                chart.dataProvider = chartData;
+                chart.categoryField = "ResponseTime";
+                chart.startDuration = 1;
+
+                // AXES
+                // category
+                var categoryAxis = chart.categoryAxis;
+                categoryAxis.labelRotation = 60; // this line makes category values to be rotated
+                categoryAxis.gridAlpha = 0;
+                categoryAxis.fillAlpha = 1;
+                categoryAxis.fillColor = "#FAFAFA";
+                categoryAxis.gridPosition = "start";
+                categoryAxis.title = "client response time distribution"
+
+                // value
+                var valueAxis = new AmCharts.ValueAxis();
+                valueAxis.dashLength = 5;
+                valueAxis.title = "client number of response time";
+                valueAxis.axisAlpha = 0;
+                chart.addValueAxis(valueAxis);
+
+                // GRAPH
+                var graph = new AmCharts.AmGraph();
+                graph.valueField = "Client";
+                graph.colorField = "color";
+                graph.balloonText = "<b>[[category]]: [[value]]</b>";
+                graph.type = "column";
+                graph.lineAlpha = 0;
+                graph.fillAlphas = 1;
+                chart.addGraph(graph);
+
+                // CURSOR
+                var chartCursor = new AmCharts.ChartCursor();
+                chartCursor.cursorAlpha = 0;
+                chartCursor.zoomable = false;
+                chartCursor.categoryBalloonEnabled = false;
+                chart.addChartCursor(chartCursor);
+
+                chart.creditsPosition = "top-right";
+
+                // WRITE
+                chart.write("chartdiv");
+                
+                ////////////////////////////////////
+                // SERIAL CHART
+                chart2 = new AmCharts.AmSerialChart();
+                chart2.dataProvider = [{'color': '#FF0F00', 'Client': '17217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];;
+                chart2.categoryField = "ResponseTime";
+                chart2.startDuration = 1;
+
+                // AXES
+                // category
+                var categoryAxis2 = chart2.categoryAxis;
+                categoryAxis2.labelRotation = 60; // this line makes category values to be rotated
+                categoryAxis2.gridAlpha = 0;
+                categoryAxis2.fillAlpha = 1;
+                categoryAxis2.fillColor = "#FAFAFA";
+                categoryAxis2.gridPosition = "start";
+                categoryAxis2.title = "bitrate client response time distribution"
+
+                // value
+                var valueAxis2 = new AmCharts.ValueAxis();
+                valueAxis2.dashLength = 5;
+                valueAxis2.title = "client number of bitrate response time";
+                valueAxis2.axisAlpha = 0;
+                chart2.addValueAxis(valueAxis2);
+
+                // GRAPH
+                var graph2 = new AmCharts.AmGraph();
+                graph2.valueField = "Client";
+                graph2.colorField = "color";
+                graph2.balloonText = "<b>[[category]]: [[value]]</b>";
+                graph2.type = "column";
+                graph2.lineAlpha = 0;
+                graph2.fillAlphas = 1;
+                chart2.addGraph(graph2);
+
+                // CURSOR
+                var chartCursor2 = new AmCharts.ChartCursor();
+                chartCursor2.cursorAlpha = 0;
+                chartCursor2.zoomable = false;
+                chartCursor2.categoryBalloonEnabled = false;
+                chart2.addChartCursor(chartCursor2);
+
+                chart2.creditsPosition = "top-right";
+
+                // WRITE
+                chart2.write("chartdiv2");
+            });
+        </script>
+{% endblock%}
+
+{% block main %}
+	<p>.</p><p>.</p>
+	<div class="col-md-5">
+		<div class="text-info">Index Response Time Distribution</div>
+    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
+    </div>
+    <div class="col-md-1">
+    
+    </div>
+    <div class="col-md-5">
+    	<div class="text-info">     Bitrate Response Time Distribution</div>
+    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
+    </div>
+{% endblock%}
