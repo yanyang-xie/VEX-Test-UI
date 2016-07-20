@@ -5,7 +5,6 @@ import string
 
 from django.http.response import HttpResponse
 from django.shortcuts import render
-import simplejson
 
 from loadtest.models import LoadTestResult
 
@@ -30,25 +29,28 @@ def show(request):
         })
 
 def insert_test_result(request):
-    logger.info("info")
-    logger.error("error")
-    logger.debug("debug")
-    logger.warn("warn")
-    '''
-    dict = {}
-    info = 'Data log save success'
-    try:
-        if request.method == 'POST':
-            data = simplejson.loads(request.raw_post_data)
-            # username = request['username']
-            print data
-            
-    except Exception, e:
-        logger.error('Failed to insert load test result', e)
- 
-    dict['message'] = info
-    json = simplejson.dumps(dict)
-    '''
+    logger.debug("insert load test request")
+    print request.body
+    if request.method == 'POST':
+        received_json_data = json.loads(request.body)
+        
+        index_results = received_json_data['index_results']
+        bitrate_results = received_json_data['bitrate_results'] 
+        test_errors = received_json_data['test_errors'] if received_json_data.has_key('test_errors') else ''
+        test_date = received_json_data['test_date'] if received_json_data.has_key('test_date') else ''
+        print index_results, bitrate_results, test_errors, test_date
+        '''
+        Post data
+        {"index_results":"index",
+        "bitrate_results":"bitrate"}
+        '''
+        
+        # 这里增加一个验证的form,要求index和bitrate的response必须要有。如果存在日期，那么格式必须为2016/07/18
+        result1 = LoadTestResult()
+        result1.test_result_index = index_results
+        result1.test_result_bitrate = bitrate_results
+        result1.save()
+        
     return HttpResponse("2000000")
 
 def _get_armcharts_column_list(benchmark_result):
