@@ -20,6 +20,6 @@ from django.conf.urls import url
 urlpatterns = [
     url(r'^$', 'loadtest.views.show', name='index'),
     url(r'^showLoadtestResult$', 'loadtest.views.show', name='showLoadtestResult'),
-    url(r'^insert', 'loadtest.views.insert_test_result', name='insert'),
+    url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insert'),
     url(r'^about', 'loadtest.views.about', name='about'),
 ]
