@@ -119,41 +119,46 @@
 {% endblock%}
 
 {% block main %}
-	<div class="row">
-	<p>.</p><p>.</p>
-	<div class="col-md-5">
-		<div class="text-info">Test Type:</div>
-    	<select name="load_test_type" id="load_test_type_list" onChange="getRecentlyLoadTestResult(this.value)"> 
-			{% if test_type_list %}
-				{% for test_type in test_type_list %}     
-					<option value="{{ test_type.id }}">{{test_type.name}}</option>     
-				{% endfor %}     
-			{% endif %}
-		</select>
-			
-		<div class="text-info">Test Date:</div>   
-		<select name="load_test_date" id="load_test_date_list" onChange="alert('changed')"> 
-			{% if load_test_results %}
-				{% for test_result in load_test_results %}
-					<option value="{{ test_result.id }}">{{test_result.test_date}}</option>
-				{% endfor %}
-			{% endif %}
-		</select>
-	</div>
-	
-	<div class="row">
-	<div class="col-md-5">
-		<div class="text-info">Index Response Time Distribution</div>
-    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
+<p>.</p><p>.</p>
+	<div class= "row">
+        <div class= "form-group col-xs-12">
+             <label for= "sceneModel_title" class="col-sm-1 control-label" >测试类型: </label>
+             <div class= "col-sm-3">
+             	<select class= "form-control selectpicker" name="load_test_type" id="load_test_type_list" onChange="getRecentlyLoadTestResult(this.value)"> 
+					{% if test_type_list %}
+						{% for test_type in test_type_list %}     
+							<option value="{{ test_type.id }}">{{test_type.name}}</option>     
+						{% endfor %}     
+					{% endif %}
+				</select>
+             </div>
+             <label for= "scene_title" class="col-sm-1 control-label" >测试日期: </label>
+             <div class= "col-sm-3">
+                  <select class="form-control selectpicker" name="load_test_date" id="load_test_date_list" onChange="alert('changed')"> 
+					{% if load_test_results %}
+						{% for test_result in load_test_results %}
+							<option value="{{ test_result.id }}">{{test_result.test_date}}</option>
+						{% endfor %}
+					{% endif %}
+				</select>
+             </div>
+
+        </div>
     </div>
-    <div class="col-md-1">
+    <div class="row">
+		<div class="col-md-6">
+			<div class="text-info">Index Response Time Distribution</div>
+	    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
+	    </div>
+	    <div class="col-md-1">
+	    
+	    </div>
+	    <div class="col-md-6">
+	    	<div class="text-info">Bitrate Response Time Distribution</div>
+	    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
+	    </div>
+    </div>
     
-    </div>
-    <div class="col-md-5">
-    	<div class="text-info">Bitrate Response Time Distribution</div>
-    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
-    </div>
-    </div>
     {% if test_errors %}
     <div class="row">
     	<div class="text-info">Test ERROR:</div>

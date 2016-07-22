@@ -27,6 +27,9 @@ def show_all_load_test_results(request):
     bitrate_results = _get_armcharts_column_list(load_test_results[0].test_result_bitrate)
     test_errors = load_test_results[0].test_result_error
     
+    print index_results
+    print bitrate_results
+    
     return render(request, 'loadtest/all.html',
                   {'test_type_list': test_type_list,
                    'load_test_results':load_test_results,
