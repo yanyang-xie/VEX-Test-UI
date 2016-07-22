@@ -7,17 +7,54 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 
 from loadtest.froms import VexLoadTestInsertionForm
-from loadtest.models import LoadTestResult
+from loadtest.models import LoadTestResult, CHOICES_TYPE
 
 logger = logging.getLogger(__name__)
 
 def about(request):
     return render(request, 'loadtest/about.html')
 
+def show_all_load_test_results(request):
+    test_type_list = []
+    for choice in CHOICES_TYPE:
+        test_type_list.append({"id": choice[0], "name":choice[1]})
+    
+    # 这里应该根据类型获取所有的某个类型，比如vod的测试结果
+    load_test_results = LoadTestResult.objects.all();
+    
+    # 这里应该是根据测试类型和测试时间去获取某一个测试结果的东西
+    index_results = _get_armcharts_column_list(load_test_results[0].test_result_index)
+    bitrate_results = _get_armcharts_column_list(load_test_results[0].test_result_bitrate)
+    test_errors = load_test_results[0].test_result_error
+    
+    return render(request, 'loadtest/all.html',
+                  {'test_type_list': test_type_list,
+                   'load_test_results':load_test_results,
+                   'index_results': json.dumps(index_results),
+                   'bitrate_results': json.dumps(bitrate_results),
+                   'test_errors': test_errors, }
+                  )
+
+def get_all_load_test_results(request, test_type='VOD'): 
+    loadtest_results = LoadTestResult.objects.filter(test_type=test_type);
+
+    '''
+    # one result
+    return HttpResponse(json.dumps(result.as_json()), content_type="application/json")
+    
+    # a list of results
+    results = [ob.as_json() for ob in resultset]
+    return HttpResponse(json.dumps(results), content_type="application/json")
+    '''
+    
+    results = [ob.as_json() for ob in loadtest_results]
+    print json.dumps(results)
+    return HttpResponse(json.dumps(results), content_type="application/json")
+
+# 展示最新的压力测试结果
 def show(request):
     # List = [{'color': '#FF0F00', 'Client': '7217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];
-    loadtest_results = LoadTestResult.objects.all();
-    lastest_load_test_result = loadtest_results[0];
+    lastest_load_test_result = LoadTestResult.objects.latest(field_name='test_date');
     index_results = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
     bitrate_results = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
     test_errors = lastest_load_test_result.test_result_error

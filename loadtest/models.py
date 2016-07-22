@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 CHOICES_TYPE = [('VOD', 'vod'), ('cDVR', 'cdvr'), ('Linear', 'linear')]
 CHOICES_VERSION = [('2.3', '2.3'), ('2.7', '2.7'), ('2.8', '2.8')]
 
@@ -13,8 +14,18 @@ class LoadTestResult(models.Model):
     test_result_error = models.TextField(blank=True, null=True, default='')
     
     def __unicode__(self):
-        return self.test_type + 'in' + str(self.test_date)
+        return '[test_id:{}, test_date:{}, test_type:{}, test_version:{}]'.format(self.id, self.test_date.strftime('%Y-%m-%d'), self.test_type, self.test_version)
     
+    def as_json(self):
+        return dict(
+            test_id=self.id,
+            test_version=self.test_version,
+            test_type=self.test_type,
+            test_date=self.test_date.strftime('%Y-%m-%d'),
+            # test_result_index=self.test_result_index,
+            # test_result_bitrate=self.test_result_bitrate,
+            # test_result_error=self.test_result_error,
+            )
+ 
     class Meta:
         db_table = 'load_test_result'
-

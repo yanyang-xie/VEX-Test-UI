@@ -19,7 +19,9 @@ from django.conf.urls import url
 
 urlpatterns = [
     url(r'^$', 'loadtest.views.show', name='index'),
-    url(r'^showLoadtestResult$', 'loadtest.views.show', name='showLoadtestResult'),
+    url(r'^showOne', 'loadtest.views.show', name='show'),
+    url(r'^showAll$', 'loadtest.views.show_all_load_test_results', name='showAll'),
+    url(r'^getAll', 'loadtest.views.get_all_load_test_results', name='getAll'),
     url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insert'),
     url(r'^about', 'loadtest.views.about', name='about'),
 ]
