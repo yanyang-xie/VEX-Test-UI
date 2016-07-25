@@ -9,6 +9,7 @@ from django.shortcuts import render
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list
 
+
 logger = logging.getLogger(__name__)
 
 def about(request):
@@ -18,14 +19,18 @@ def about(request):
 def show_latest(request):
     # List = [{'color': '#FF0F00', 'Client': '7217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];
     lastest_load_test_result = LoadTestResult.objects.latest(field_name='test_date');
-    index_results = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
-    bitrate_results = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
-    test_errors = lastest_load_test_result.test_result_error
+    index_result = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
+    bitrate_result = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
+    test_error = lastest_load_test_result.test_result_error
     
-    return render(request, 'loadtest/latestResult.html', {
-            'index_results': json.dumps(index_results),
-            'bitrate_results': json.dumps(bitrate_results),
-            'test_errors': test_errors, })
+    index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index')
+    bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate')
+    
+    context = {'index_results': json.dumps(index_result), 'bitrate_results': json.dumps(bitrate_result), 'test_errors': test_error, 'test_date':lastest_load_test_result.test_date}
+    context.update(index_benchmark_summary)
+    context.update(bitrate_benchmark_summary)
+    
+    return render(request, 'loadtest/latestResult.html', context)
 
 # 显示所有的压力测试类型。如果参数中包含测试类型，则显示最近10次的压力测试数据时间
 def show_all_load_test_results(request, test_type=None):
@@ -39,15 +44,23 @@ def show_all_load_test_results(request, test_type=None):
     context['test_type_list'] = get_test_type_json_list()
     
     if len(load_test_results) > 0:
-        index_results = _get_armcharts_column_list(load_test_results[0].test_result_index)
-        bitrate_results = _get_armcharts_column_list(load_test_results[0].test_result_bitrate)
+        latest_load_test_result = load_test_results[0]
+        index_results = _get_armcharts_column_list(latest_load_test_result.test_result_index)
+        bitrate_results = _get_armcharts_column_list(latest_load_test_result.test_result_bitrate)
         test_errors = load_test_results[0].test_result_error
         
         context.update({'load_test_results':load_test_results,
-                        'selected_test_id': load_test_results[0].id,
+                        'selected_test_id': latest_load_test_result.id,
                        'index_results': json.dumps(index_results),
                        'bitrate_results': json.dumps(bitrate_results),
-                       'test_errors': test_errors, })
+                       'test_errors': test_errors,
+                       'test_date': latest_load_test_result.test_date})
+        
+        index_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_index, '_index')
+        bitrate_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_bitrate, '_bitrate')
+        context.update(index_benchmark_summary)
+        context.update(bitrate_benchmark_summary)
+        
     logger.debug("Context is: %s", context)
     return render(request, 'loadtest/testResults.html', context)
 
@@ -70,8 +83,14 @@ def show_one_load_test_result(request, test_type, test_id):
     context.update({'load_test_results':load_test_results,
                    'index_results': json.dumps(index_results),
                    'bitrate_results': json.dumps(bitrate_results),
-                   'test_errors': test_errors, })
+                   'test_errors': test_errors,
+                   'test_date': load_test_result.test_date })
 
+    index_benchmark_summary = _get_benchmark_number(load_test_result.test_result_index, '_index')
+    bitrate_benchmark_summary = _get_benchmark_number(load_test_result.test_result_bitrate, '_bitrate')
+    context.update(index_benchmark_summary)
+    context.update(bitrate_benchmark_summary)
+    
     return render(request, 'loadtest/testResults.html', context)
 
 # 获取所有的压力测试结果信息
@@ -221,6 +240,41 @@ def _get_armcharts_column_list(benchmark_result):
         
     final_convert_column_list = convert_column_list[1:-1] + [convert_column_list[0]]
     return final_convert_column_list
+
+def _get_benchmark_number(benchmark_result, tag=''):
+    average_response = 0
+    benchmark_time = 0
+    request_number = 0
+    error_number = 0
+    
+    for line in benchmark_result.split('\n'):
+        if string.strip(line) == '':
+            continue
+        
+        m_number = line.split(':')[1].replace('\r', '')
+        if line.find('error') > 0:
+            error_number = int(m_number)
+            continue
+        
+        if line.find('Average response') > 0:
+            average_response = int(m_number)
+            continue
+        
+        if line.find('Total request') > 0:
+            request_number = int(m_number)
+            continue
+        
+        if line.find('Total cost') > 0:
+            benchmark_time = int(m_number)
+            continue
+    
+    results = {"average_response":0, "benchmark_time":0, "concurrent_session":0, "error_rate":0}
+    results["average_response" + tag] = average_response
+    results["benchmark_time" + tag] = "{} Hour {} Minutes".format(str(benchmark_time / 3600), str((59 + benchmark_time - 3600 * (benchmark_time / 3600)) / 60))
+    results["concurrent_session" + tag] = request_number / benchmark_time
+    results["error_rate" + tag] = round((float(error_number) / request_number) * 100, 2)
+    print results
+    return results
 
 '''<?xml version="1.0"?>
 <loadtest_data>

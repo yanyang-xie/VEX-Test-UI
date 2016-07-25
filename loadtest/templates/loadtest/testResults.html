@@ -65,15 +65,28 @@
         </div>
     </div>
     <div class="row">
+    	{% if benchmark_time_index %}
+		<div class="text-info">Test Date: {{test_date |date:'Y-m-d H:i'}}  |  Test Time: {{ benchmark_time_index }}  |  Current Sesssion:{{ concurrent_session_index }}/sec </div>
+		{% endif %}
 		<div class="col-md-6">
-			<div class="text-info">Index Response Time Distribution</div>
+			{% if index_results%}
+			<div class="text-info">Index Test Result:</div>
+			{% endif %}
+			{% if benchmark_time_index %}
+			<div class=""> Average Response:{{ average_response_index }}ms  |  Failure Rate: {{error_rate_index}}%</div>
+			{% endif %}
 	    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
 	    </div>
 	    <div class="col-md-1">
 	    
 	    </div>
 	    <div class="col-md-6">
-	    	<div class="text-info">Bitrate Response Time Distribution</div>
+	    	{% if bitrate_results%}
+	    	<div class="text-info">Bitrate Test Result:</div>
+	    	{% endif %}
+	    	{% if benchmark_time_index %}
+			<div class=""> Average Response:{{ average_response_bitrate }}ms | Failure Rate: {{error_rate_bitrate}}%</div>
+			{% endif %}
 	    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
 	    </div>
     </div>
