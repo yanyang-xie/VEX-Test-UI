@@ -40,7 +40,7 @@ class VexLoadTestInsertionForm(forms.ModelForm):
         model = LoadTestResult
         
         # django的form validation只会对在fields中的元素验证和赋值。其他元素如果需要赋值，需要在save之前单独给instance添加值
-        fields = ("test_version", "test_type", 'test_result_index', "test_result_bitrate")
+        fields = ("test_version", "test_type", 'test_result_index', "test_result_bitrate", "test_result_error")
         # fields = ("test_version", "test_type")
     
     def save(self, commit=True):

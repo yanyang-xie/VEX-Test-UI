@@ -314,6 +314,9 @@ def _get_benchmark_number(benchmark_result, tag=''):
         5000 ~ 6000 milliseconds :0
         6000 ~ 12000 milliseconds :0
     </bitrate_results>
+    <error_results>
+    jdljaldjlasjldajsljdlasjldj
+    </error_results>
     <test_type>VOD</test_type>
     <test_version>2.7</test_version>
 </loadtest_data>'''
@@ -324,6 +327,7 @@ def _convert_request_body_to_form_validation(request):
     root = ET.XML(request.body)
     bitrate_results_element = root.find('bitrate_results')
     index_results_element = root.find('index_results')
+    error_results_element = root.find('error_results')
     test_type_element = root.find('test_type') 
     test_version_element = root.find('test_version')
     
@@ -332,5 +336,6 @@ def _convert_request_body_to_form_validation(request):
     data['test_version'] = test_version_element.text if test_version_element is not None else ''
     data['test_result_index'] = index_results_element.text if index_results_element is not None else ''
     data['test_result_bitrate'] = bitrate_results_element.text if bitrate_results_element is not None else ''
+    data['test_result_error'] = error_results_element.text if error_results_element is not None else ''
     logger.debug("Converted form data is:" + str(data))
     return data
