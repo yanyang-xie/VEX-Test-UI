@@ -1,0 +1,39 @@
+{% extends "./loadtest/base.html" %}
+
+{% block header %}
+<script>
+	var index_result_data = {{ index_results |safe }};
+	var bitrate_result_data = {{ bitrate_results |safe }};
+    
+    AmCharts.ready(function () {
+    	drawAmCharts(index_result_data, "chartdiv");
+        drawAmCharts(bitrate_result_data, "chartdiv2");
+    });
+</script>
+{% endblock%}
+
+{% block main %}
+	<p>.</p><p>.</p>
+	<div class="row">
+	<div class="col-md-5">
+		<div class="text-info">Index Response Time Distribution</div>
+    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
+    </div>
+    <div class="col-md-1">
+    
+    </div>
+    <div class="col-md-5">
+    	<div class="text-info">Bitrate Response Time Distribution</div>
+    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
+    </div>
+    </div>
+    {% if test_errors %}
+    <div class="row">
+    	<div class="text-info">Test ERROR:</div>
+    	<div class="col-md-12">
+    	<textarea id="note-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_errors | safe }}
+ 		</textarea>
+    	</div>
+    </div>
+    {% endif %}
+{% endblock%}

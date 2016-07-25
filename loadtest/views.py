@@ -7,62 +7,83 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 
 from loadtest.froms import VexLoadTestInsertionForm
-from loadtest.models import LoadTestResult, CHOICES_TYPE
+from loadtest.models import LoadTestResult, get_test_type_json_list
 
 logger = logging.getLogger(__name__)
 
 def about(request):
     return render(request, 'loadtest/about.html')
 
-def show_all_load_test_results(request):
-    test_type_list = []
-    for choice in CHOICES_TYPE:
-        test_type_list.append({"id": choice[0], "name":choice[1]})
-    
-    # 这里应该根据类型获取所有的某个类型，比如vod的测试结果
-    load_test_results = LoadTestResult.objects.all();
-    
-    # 这里应该是根据测试类型和测试时间去获取某一个测试结果的东西
-    index_results = _get_armcharts_column_list(load_test_results[0].test_result_index)
-    bitrate_results = _get_armcharts_column_list(load_test_results[0].test_result_bitrate)
-    test_errors = load_test_results[0].test_result_error
-    
-    return render(request, 'loadtest/all.html',
-                  {'test_type_list': test_type_list,
-                   'load_test_results':load_test_results,
-                   'index_results': json.dumps(index_results),
-                   'bitrate_results': json.dumps(bitrate_results),
-                   'test_errors': test_errors, }
-                  )
-
-def get_all_load_test_results(request, test_type='VOD'): 
-    loadtest_results = LoadTestResult.objects.filter(test_type=test_type);
-
-    '''
-    # one result
-    return HttpResponse(json.dumps(result.as_json()), content_type="application/json")
-    
-    # a list of results
-    results = [ob.as_json() for ob in resultset]
-    return HttpResponse(json.dumps(results), content_type="application/json")
-    '''
-    
-    results = [ob.as_json() for ob in loadtest_results]
-    print json.dumps(results)
-    return HttpResponse(json.dumps(results), content_type="application/json")
-
 # 展示最新的压力测试结果
-def show(request):
+def show_latest(request):
     # List = [{'color': '#FF0F00', 'Client': '7217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];
     lastest_load_test_result = LoadTestResult.objects.latest(field_name='test_date');
     index_results = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
     bitrate_results = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
     test_errors = lastest_load_test_result.test_result_error
     
-    return render(request, 'loadtest/loadtest_result.html', {
-            'index_results': json.dumps(index_results), 'bitrate_results': json.dumps(bitrate_results), 'test_errors': test_errors,
-        })
+    return render(request, 'loadtest/latestResult.html', {
+            'index_results': json.dumps(index_results),
+            'bitrate_results': json.dumps(bitrate_results),
+            'test_errors': test_errors, })
 
+# 显示所有的压力测试类型。如果参数中包含测试类型，则显示最近10次的压力测试数据时间
+def show_all_load_test_results(request, test_type=None):
+    if test_type is not None:
+        logger.debug("Show all %s test results", test_type)
+    else:
+        logger.debug("Show all test results for both linear/vod/cdvr")
+    
+    load_test_results = LoadTestResult.objects.all()[0:10] if test_type is None else LoadTestResult.objects.filter(test_type=test_type);
+    context = {} if test_type is None else {'selected_test_type': test_type}
+    context['test_type_list'] = get_test_type_json_list()
+    
+    if len(load_test_results) > 0:
+        index_results = _get_armcharts_column_list(load_test_results[0].test_result_index)
+        bitrate_results = _get_armcharts_column_list(load_test_results[0].test_result_bitrate)
+        test_errors = load_test_results[0].test_result_error
+        
+        context.update({'load_test_results':load_test_results,
+                        'selected_test_id': load_test_results[0].id,
+                       'index_results': json.dumps(index_results),
+                       'bitrate_results': json.dumps(bitrate_results),
+                       'test_errors': test_errors, })
+    logger.debug("Context is: %s", context)
+    return render(request, 'loadtest/testResults.html', context)
+
+# 显示某一次压力测试结果    
+def show_one_load_test_result(request, test_type, test_id):
+    logger.debug("Show test results for %s[test_id: %s]", test_type, test_id)
+    
+    load_test_results = LoadTestResult.objects.filter(test_type=test_type);
+    load_test_result = load_test_results.get(id=test_id);
+    
+    context = {}
+    context['selected_test_type'] = test_type
+    context['selected_test_id'] = test_id
+    context['test_type_list'] = get_test_type_json_list()
+    
+    index_results = _get_armcharts_column_list(load_test_result.test_result_index)
+    bitrate_results = _get_armcharts_column_list(load_test_result.test_result_bitrate)
+    test_errors = load_test_result.test_result_error
+        
+    context.update({'load_test_results':load_test_results,
+                   'index_results': json.dumps(index_results),
+                   'bitrate_results': json.dumps(bitrate_results),
+                   'test_errors': test_errors, })
+
+    return render(request, 'loadtest/testResults.html', context)
+
+# 获取所有的压力测试结果信息
+def get_all_load_test_results(request, test_type):
+    loadtest_results = LoadTestResult.objects.filter(test_type=test_type);
+    results = [ob.as_json() for ob in loadtest_results]
+    logger.debug("Load test result for %s is %s", test_type, str(results))
+    return HttpResponse(json.dumps(results), content_type="application/json")
+
+
+
+# 插入一条压力测试结果(通过form验证)
 def insert_test_result_with_form(request):
     if request.method == 'POST':
         
@@ -83,6 +104,7 @@ def insert_test_result_with_form(request):
     else:   
         return HttpResponse("Must be post with body")
 
+# 插入一条压力测试结果(不通过form验证)
 def insert_test_result(request):
     if request.method == 'POST':
         logger.debug("insert load test request with body:" + request.body)

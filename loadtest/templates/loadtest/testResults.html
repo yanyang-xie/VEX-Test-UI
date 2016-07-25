@@ -1,0 +1,90 @@
+{% extends "./loadtest/base.html" %}
+
+{% block header %}
+<script>
+    AmCharts.ready(function () {
+        $("#load_test_type_list").val("{{ selected_test_type }}");
+        $("#load_test_date_list").val("{{ selected_test_id }}");
+		
+    	{% if index_results %}
+    	var index_result_data = {{ index_results |safe }};
+		var bitrate_result_data = {{ bitrate_results |safe }};
+    	drawAmCharts(index_result_data, "chartdiv");
+        drawAmCharts(bitrate_result_data, "chartdiv2");
+        {% endif%}
+    });
+    
+    function getRecentlyLoadTestResult(test_type_id)
+	{
+		$.ajax({     
+		    type: "GET",   
+		    url: "/getAll/"+test_type_id,     
+		    dataType:"json",     
+		    success: function(data){
+			    var test_date_element = $("#load_test_date_list");
+			    test_date_element.empty();
+			    
+			    for(i=0;i<data.length;i++){ 
+			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
+			    }
+		    }
+		})
+	}
+	
+	function getRecentlyLoadTestResultByTestID(test_id){
+		test_type = $("#load_test_type_list").val();
+		window.location.href="/showOne/" + test_type + "/" + test_id;
+	}
+</script>
+{% endblock%}
+
+{% block main %}
+<p>.</p><p>.</p>
+	<div class="row">
+        <div class= "form-group col-xs-12">
+             <label for= "sceneModel_title" class="col-sm-1 control-label" >测试类型: </label>
+             <div class= "col-sm-3">
+             	<select class= "form-control selectpicker" name="load_test_type" id="load_test_type_list" onChange="getRecentlyLoadTestResult(this.value)"> 
+					{% if test_type_list %}
+						{% for test_type in test_type_list %}
+							<option value="{{ test_type.id }}">{{test_type.name}}</option>
+						{% endfor %}     
+					{% endif %}
+				</select>
+             </div>
+             <label for= "scene_title" class="col-sm-1 control-label">测试日期: </label>
+             <div class= "col-sm-3">
+                  <select class="form-control selectpicker" name="load_test_date" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
+					{% if load_test_results %}
+						{% for test_result in load_test_results %}
+							<option value="{{ test_result.id }}">{{test_result.test_date |date:'Y-m-d H:i'}}</option>
+						{% endfor %}
+					{% endif %}
+				</select>
+             </div>
+        </div>
+    </div>
+    <div class="row">
+		<div class="col-md-6">
+			<div class="text-info">Index Response Time Distribution</div>
+	    	<div id="chartdiv" style="width: 500px; height: 400px;"></div>
+	    </div>
+	    <div class="col-md-1">
+	    
+	    </div>
+	    <div class="col-md-6">
+	    	<div class="text-info">Bitrate Response Time Distribution</div>
+	    	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
+	    </div>
+    </div>
+    
+    {% if test_errors %}
+    <div class="row">
+    	<div class="text-info">Test ERROR:</div>
+    	<div class="col-md-12">
+    	<textarea id="error-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_errors | safe }}
+ 		</textarea>
+    	</div>
+    </div>
+    {% endif %}
+{% endblock%}

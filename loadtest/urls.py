@@ -18,10 +18,11 @@ Including another URLconf
 from django.conf.urls import url
 
 urlpatterns = [
-    url(r'^$', 'loadtest.views.show', name='index'),
-    url(r'^showOne', 'loadtest.views.show', name='show'),
-    url(r'^showAll$', 'loadtest.views.show_all_load_test_results', name='showAll'),
-    url(r'^getAll', 'loadtest.views.get_all_load_test_results', name='getAll'),
-    url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insert'),
+    url(r'^$', 'loadtest.views.show_all_load_test_results', name='allLoadTestResults'),
+    url(r'^showLatest', 'loadtest.views.show_latest', name='showLatestTestResult'),
+    url(r'^showAll/(?P<test_type>.*)', 'loadtest.views.show_all_load_test_results', name='showAllLoadTestResults'),
+    url(r'^showOne/(?P<test_type>\w+)/(?P<test_id>\w+)', 'loadtest.views.show_one_load_test_result', name='showOneLoadTestResults'),
+    url(r'^getAll/(?P<test_type>\w+)', 'loadtest.views.get_all_load_test_results', name='getAllLoadTestResults'),
+    url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insertLoadTestResult'),
     url(r'^about', 'loadtest.views.about', name='about'),
 ]
