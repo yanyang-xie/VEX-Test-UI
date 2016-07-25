@@ -7,13 +7,13 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand hidden-sm" href="" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'navbar-测试UI'])">VEX测试UI</a>
+      <a class="navbar-brand hidden-sm" href="{% url 'showLatestTestResult' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'navbar-测试UI'])">VEX测试UI</a>
     </div>
     <div class="navbar-collapse collapse" role="navigation">
       <ul class="nav navbar-nav">
-      	<li><a href="/showAll/VOD" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">VOD压力测试结果</a></li>
-      	<li><a href="/showAll/cDVR" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">cDVR压力测试结果</a></li>
-      	<li><a href="/showAll/Linear" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Linear压力测试结果</a></li>
+      	<li><a href="{% url 'showAllLoadTestResults' 'VOD' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">VOD压力测试结果</a></li>
+      	<li><a href="{% url 'showAllLoadTestResults' 'cDVR' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">cDVR压力测试结果</a></li>
+      	<li><a href="{% url 'showAllLoadTestResults' 'Linear' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Linear压力测试结果</a></li>
       	<!--
         <li><a href="http://v3.bootcss.com/" target="_blank" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Bootstrap3中文文档</a></li>
         <li><a href="http://www.jquery123.com/" target="_blank" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'jquery'])">jQuery API</a></li>

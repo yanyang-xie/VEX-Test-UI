@@ -8,6 +8,7 @@ from django.shortcuts import render
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list
+from lib2to3.tests.test_fixers import Test_types
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,8 @@ def show_latest(request):
     index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index')
     bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate')
     
-    context = {'index_results': json.dumps(index_result), 'bitrate_results': json.dumps(bitrate_result), 'test_errors': test_error, 'test_date':lastest_load_test_result.test_date}
+    context = {'index_results': json.dumps(index_result), 'bitrate_results': json.dumps(bitrate_result), 'test_errors': test_error,
+               'test_date':lastest_load_test_result.test_date, 'test_type': lastest_load_test_result.test_type}
     context.update(index_benchmark_summary)
     context.update(bitrate_benchmark_summary)
     

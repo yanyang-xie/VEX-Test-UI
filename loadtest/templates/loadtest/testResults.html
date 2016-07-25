@@ -16,9 +16,10 @@
     
     function getRecentlyLoadTestResult(test_type_id)
 	{
+		
 		$.ajax({     
 		    type: "GET",   
-		    url: "/getAll/"+test_type_id,     
+		    url: "/getAll/"+test_type_id,
 		    dataType:"json",     
 		    success: function(data){
 			    var test_date_element = $("#load_test_date_list");
@@ -27,6 +28,8 @@
 			    for(i=0;i<data.length;i++){ 
 			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
 			    }
+			    
+			    window.location.href="/showOne/" + test_type_id + "/" + data[0].test_id;
 		    }
 		})
 	}
