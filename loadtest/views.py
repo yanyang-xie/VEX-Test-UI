@@ -8,7 +8,6 @@ from django.shortcuts import render
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list
-from lib2to3.tests.test_fixers import Test_types
 
 
 logger = logging.getLogger(__name__)
@@ -275,7 +274,6 @@ def _get_benchmark_number(benchmark_result, tag=''):
     results["benchmark_time" + tag] = "{} Hour {} Minutes".format(str(benchmark_time / 3600), str((59 + benchmark_time - 3600 * (benchmark_time / 3600)) / 60))
     results["concurrent_session" + tag] = request_number / benchmark_time
     results["error_rate" + tag] = round((float(error_number) / request_number) * 100, 2)
-    print results
     return results
 
 '''<?xml version="1.0"?>
