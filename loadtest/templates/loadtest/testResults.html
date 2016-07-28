@@ -60,7 +60,7 @@
                   <select class="form-control selectpicker" name="load_test_date" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
 					{% if load_test_results %}
 						{% for test_result in load_test_results %}
-							<option value="{{ test_result.id }}">{{test_result.test_date |date:'Y-m-d H:i'}}</option>
+							<option value="{{ test_result.id }}">{{test_result.test_date |date:'Y-m-d'}}</option>
 						{% endfor %}
 					{% endif %}
 				</select>

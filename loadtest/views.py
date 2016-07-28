@@ -4,10 +4,11 @@ import logging
 import string
 
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list
+from loadtest.util import get_current_day_start_date
 
 
 logger = logging.getLogger(__name__)
@@ -101,50 +102,60 @@ def get_all_load_test_results(request, test_type):
     logger.debug("Load test result for %s is %s", test_type, str(results))
     return HttpResponse(json.dumps(results), content_type="application/json")
 
-
-
 # 插入一条压力测试结果(通过form验证)
 def insert_test_result_with_form(request):
-    if request.method == 'POST':
-        
-        # 标准的从网页提交的数据会直接被django将数据转换到了requst.POST中，表现为QueryDict. 
-        # form = VexLoadTestInsertionForm(request.POST)
-        # 我们这里是从request body中post过去的，因此需要转换request.body中的数据到dict，才能使用form的validation
-        # 且validation要求UI上的post对象的名称和model中的对象的名称完全一致。因此需要转换index_results和bitrate_results为test_result_index和test_result_bitrate
-        data = request.POST if request.POST else _convert_request_body_to_form_validation(request)
-        form = VexLoadTestInsertionForm(data)
-        errors = {}
-        # 验证表单是否正确
-        if form.is_valid():
-            form.save()
-            return HttpResponse("Test result has been saved.")
-        else:
-            errors.update(form.errors)
-            return HttpResponse(json.dumps({"errors": errors}), content_type="application/json")
-    else:   
-        return HttpResponse("Must be post with body")
+    try:
+        if request.method == 'POST':
+            
+            # 标准的从网页提交的数据会直接被django将数据转换到了requst.POST中，表现为QueryDict. 
+            # form = VexLoadTestInsertionForm(request.POST)
+            # 我们这里是从request body中post过去的，因此需要转换request.body中的数据到dict，才能使用form的validation
+            # 且validation要求UI上的post对象的名称和model中的对象的名称完全一致。因此需要转换index_results和bitrate_results为test_result_index和test_result_bitrate
+            data = request.POST if request.POST else convert_request_body_to_form_validation(request.body)
+            form = VexLoadTestInsertionForm(data)
+            errors = {}
+            # 验证表单是否正确
+            if form.is_valid():
+                form.save()
+                return HttpResponse("Test result has been saved.")
+            else:
+                errors.update(form.errors)
+                return HttpResponse(json.dumps({"errors": errors}), content_type="application/json", status=400)
+        else:   
+            return HttpResponse("Request must be posted with XML body", status=400)
+    except Exception, e:
+        logger.error(e)
+        return HttpResponse(e.message, status=400)
 
 # 插入一条压力测试结果(不通过form验证)
 def insert_test_result(request):
     if request.method == 'POST':
         logger.debug("insert load test request with body:" + request.body)
+        data = request.POST if request.POST else convert_request_body_to_form_validation(request.body)
+        test_date = get_current_day_start_date() if data['test_date'] is None else get_current_day_start_date(data['test_date'])
         
-        received_json_data = json.loads(request.body)
-        
-        index_results = received_json_data['index_results']
-        bitrate_results = received_json_data['bitrate_results'] 
-        test_errors = received_json_data['test_errors'] if received_json_data.has_key('test_errors') else ''
-        test_date = received_json_data['test_date'] if received_json_data.has_key('test_date') else ''
-        logger.debug(index_results, bitrate_results, test_errors, test_date)
-        
-        # 这里没有验证。如果需要验证，可以采用form验证的方式
-        result = LoadTestResult()
-        result.test_result_index = index_results
-        result.test_result_bitrate = bitrate_results
-        result.save()
-        return HttpResponse("Test result has been saved.")
+        try:
+            exist_test_result = get_object_or_404(LoadTestResult, test_date=test_date, test_type=data['test_type'], test_version=data['test_version'])
+            logger.info("Test result for %s[%s][%s] is existed, just update it", data['test_type'], data['test_version'], test_date)
+            
+            exist_test_result.test_result_bitrate = data['test_result_bitrate']
+            exist_test_result.test_result_error = data['test_result_error']
+            exist_test_result.test_result_index = data['test_result_index']
+            exist_test_result.save()
+            return HttpResponse("Test result has been updated.")
+        except:
+            # 这里没有验证。如果需要验证，可以采用form验证的方式
+            result = LoadTestResult()
+            result.test_type = data['test_type']
+            result.test_version = data['test_version']
+            result.test_date = test_date
+            result.test_result_index = data['test_result_index']
+            result.test_result_bitrate = data['test_result_bitrate']
+            result.test_result_error = data['test_result_error']
+            result.save()
+            return HttpResponse("Test result has been saved.")
     else:   
-        return HttpResponse("Must be post with body")
+        return HttpResponse("Must be post with XML body", status=400)
 
 def _get_armcharts_column_list(benchmark_result):
     convert_column_list = []
@@ -276,66 +287,79 @@ def _get_benchmark_number(benchmark_result, tag=''):
     results["error_rate" + tag] = round((float(error_number) / request_number) * 100, 2)
     return results
 
-'''<?xml version="1.0"?>
-<loadtest_data>
-    <index_results>
-    Index request report:
-      Average response (milliseconds):23
-      Total cost time             :5419
-      Total request number        :1082677
-      Total response error number :0
-        0    ~ 20   milliseconds :550512
-        20   ~ 50   milliseconds :470302
-        50   ~ 200  milliseconds :60111
-        200  ~ 500  milliseconds :1447
-        500  ~ 1000 milliseconds :114
-        1000 ~ 2000 milliseconds :191
-        2000 ~ 3000 milliseconds :0
-        3000 ~ 4000 milliseconds :0
-        4000 ~ 5000 milliseconds :0
-        5000 ~ 6000 milliseconds :0
-        6000 ~ 12000 milliseconds :0
-    </index_results>
-    <bitrate_results>
-    Bit rate request report:
-      Average response (milliseconds):23
-      Total cost time             :5419
-      Total request number        :1082677
-      Total response error number :0
-        0    ~ 20   milliseconds :550512
-        20   ~ 50   milliseconds :470302
-        50   ~ 200  milliseconds :60111
-        200  ~ 500  milliseconds :1447
-        500  ~ 1000 milliseconds :114
-        1000 ~ 2000 milliseconds :191
-        2000 ~ 3000 milliseconds :0
-        3000 ~ 4000 milliseconds :0
-        4000 ~ 5000 milliseconds :0
-        5000 ~ 6000 milliseconds :0
-        6000 ~ 12000 milliseconds :0
-    </bitrate_results>
-    <error_results>
-    jdljaldjlasjldajsljdlasjldj
-    </error_results>
-    <test_type>VOD</test_type>
-    <test_version>2.7</test_version>
-</loadtest_data>'''
-def _convert_request_body_to_form_validation(request):
-    logger.debug("insert load test request with body:" + request.body)
+def convert_request_body_to_form_validation(request_body):
+    logger.debug("convert load test insertion request body:" + request_body)
+    '''
+    <?xml version="1.0"?>
+        <loadtest_data>
+            <index_results>
+            Index request report:
+              Average response (milliseconds):23
+              Total cost time             :5419
+              Total request number        :1082677
+              Total response error number :0
+                0    ~ 20   milliseconds :550512
+                20   ~ 50   milliseconds :470302
+                50   ~ 200  milliseconds :60111
+                200  ~ 500  milliseconds :1447
+                500  ~ 1000 milliseconds :114
+                1000 ~ 2000 milliseconds :191
+                2000 ~ 3000 milliseconds :0
+                3000 ~ 4000 milliseconds :0
+                4000 ~ 5000 milliseconds :0
+                5000 ~ 6000 milliseconds :0
+                6000 ~ 12000 milliseconds :0
+            </index_results>
+            <bitrate_results>
+            Bit rate request report:
+              Average response (milliseconds):23
+              Total cost time             :5419
+              Total request number        :1082677
+              Total response error number :0
+                0    ~ 20   milliseconds :550512
+                20   ~ 50   milliseconds :470302
+                50   ~ 200  milliseconds :60111
+                200  ~ 500  milliseconds :1447
+                500  ~ 1000 milliseconds :114
+                1000 ~ 2000 milliseconds :191
+                2000 ~ 3000 milliseconds :0
+                3000 ~ 4000 milliseconds :0
+                4000 ~ 5000 milliseconds :0
+                5000 ~ 6000 milliseconds :0
+                6000 ~ 12000 milliseconds :0
+            </bitrate_results>
+            <error_results>
+            3333333333333333
+            </error_results>
+            <test_type>VOD</test_type>
+            <test_date>2017-01-08 00:00:00</test_date>
+            <test_version>2.7</test_version>
+        </loadtest_data>
+    '''
     
-    import xml.etree.ElementTree as ET
-    root = ET.XML(request.body)
-    bitrate_results_element = root.find('bitrate_results')
-    index_results_element = root.find('index_results')
-    error_results_element = root.find('error_results')
-    test_type_element = root.find('test_type') 
-    test_version_element = root.find('test_version')
-    
-    data = {}
-    data['test_type'] = test_type_element.text if test_type_element is not None else ''
-    data['test_version'] = test_version_element.text if test_version_element is not None else ''
-    data['test_result_index'] = index_results_element.text if index_results_element is not None else ''
-    data['test_result_bitrate'] = bitrate_results_element.text if bitrate_results_element is not None else ''
-    data['test_result_error'] = error_results_element.text if error_results_element is not None else ''
-    logger.debug("Converted form data is:" + str(data))
+    try:
+        import xml.etree.ElementTree as ET
+        root = ET.XML(request_body)
+        bitrate_results_element = root.find('bitrate_results')
+        index_results_element = root.find('index_results')
+        error_results_element = root.find('error_results')
+        test_type_element = root.find('test_type')
+        test_version_element = root.find('test_version')
+        test_date_element = root.find('test_date')
+        
+        data = {}
+        data['test_type'] = _clear_data(test_type_element.text) if test_type_element is not None else ''
+        data['test_version'] = _clear_data(test_version_element.text) if test_version_element is not None else ''
+        data['test_result_index'] = _clear_data(index_results_element.text) if index_results_element is not None else ''
+        data['test_result_bitrate'] = _clear_data(bitrate_results_element.text) if bitrate_results_element is not None else ''
+        data['test_result_error'] = _clear_data(error_results_element.text) if error_results_element is not None else ''
+        data['test_date'] = _clear_data(test_date_element.text) if error_results_element is not None else None
+        logger.debug("Converted form data is:" + str(data))
+        return data
+    except Exception, e:
+        logger.error(e)
+        raise Exception('Parsing XML failed, please check XML content in body.\nXML content is:\n' + request_body)
+
+def _clear_data(data):
+    data = data.strip()
     return data
