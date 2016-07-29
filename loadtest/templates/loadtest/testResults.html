@@ -33,7 +33,7 @@
 			    	$('#benchmark-result').hide();
 			    	$('#benchmark-error').hide();
 			    }else{
-			    	window.location.href="/showOne/" + test_type_id + "/" + data[0].test_id;
+			    	window.location.href="/showOne/" + data[0].test_id;
 			    	$('#benchmark-result').show();
 			    	$('#benchmark-error').show();
 			    }
@@ -42,8 +42,7 @@
 	}
 	
 	function getRecentlyLoadTestResultByTestID(test_id){
-		test_version = $("#load_test_version_list").val();
-		window.location.href="/showOne/" + test_version + "/" + test_id;
+		window.location.href="/showOne/" + test_id;
 	}
 </script>
 {% endblock%}

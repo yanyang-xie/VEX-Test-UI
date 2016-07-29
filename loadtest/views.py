@@ -5,6 +5,7 @@ import string
 
 from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.cache import cache_page
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list, \
@@ -14,10 +15,12 @@ from loadtest.util import get_current_day_start_date
 
 logger = logging.getLogger(__name__)
 
+# @cache_page(60 * 60 * 24)
 def about(request):
     return render(request, 'loadtest/about.html')
 
 # 展示最新的压力测试结果
+# @cache_page(60 * 15)
 def show_latest(request):
     context = {}
     
@@ -69,12 +72,13 @@ def show_all_load_test_results(request, test_type=None):
     logger.debug("Context is: %s", context)
     return render(request, 'loadtest/testResults.html', context)
 
-# 显示某一次压力测试结果    
-def show_one_load_test_result(request, test_version, test_id):
-    logger.debug("Show test results for version %s, test_id: %s", test_version, test_id)
+# 显示某一次压力测试结果. 默认缓存5分钟
+# @cache_page(60 * 5 * 1)
+def show_one_load_test_result(request, test_id):
+    logger.debug("Show test results for test_id: %s", test_id)
     
-    load_test_results = LoadTestResult.objects.filter(test_version=test_version);
-    load_test_result = load_test_results.get(id=test_id);
+    load_test_result = LoadTestResult.objects.get(id=test_id);
+    load_test_results = LoadTestResult.objects.filter(test_version=load_test_result.test_version, test_type=load_test_result.test_type);
     
     context = {}
     
@@ -86,7 +90,7 @@ def show_one_load_test_result(request, test_version, test_id):
     context.update({'load_test_results':load_test_results,
                     'index_result_json': json.dumps(index_results),
                     'bitrate_result_json': json.dumps(bitrate_results),
-                    'selected_test_version':test_version,
+                    'selected_test_version':load_test_result.test_version,
                     'selected_test_id':test_id,
                     'test_type_list': get_test_type_json_list(),
                     'test_version_list': get_test_version_json_list(),
