@@ -6,9 +6,9 @@
         $("#load_test_type_list").val("{{ selected_test_type }}");
         $("#load_test_date_list").val("{{ selected_test_id }}");
 		
-    	{% if index_results %}
-    	var index_result_data = {{ index_results |safe }};
-		var bitrate_result_data = {{ bitrate_results |safe }};
+    	{% if index_result_json %}
+    	var index_result_data = {{ index_result_json |safe }};
+		var bitrate_result_data = {{ bitrate_result_json |safe }};
     	drawAmCharts(index_result_data, "chartdiv");
         drawAmCharts(bitrate_result_data, "chartdiv2");
         {% endif%}
@@ -29,7 +29,14 @@
 			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
 			    }
 			    
-			    window.location.href="/showOne/" + test_type_id + "/" + data[0].test_id;
+			    if (data==''){
+			    	$('#benchmark-result').hide();
+			    	$('#benchmark-error').hide();
+			    }else{
+			    	window.location.href="/showOne/" + test_type_id + "/" + data[0].test_id;
+			    	$('#benchmark-result').show();
+			    	$('#benchmark-error').show();
+			    }
 		    }
 		})
 	}
@@ -67,13 +74,13 @@
              </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" id='benchmark-result'>
     	{% if benchmark_time_index %}
 		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}{{ test_version}}: {{test_date |date:'Y-m-d'}} &nbsp&nbsp&nbsp&nbsp
 	         Running {{ benchmark_time_index }} within concurrent {{ concurrent_session_index }}/sec sessions</div>
 		{% endif %}
 		<div class="col-md-6">
-			{% if index_results%}
+			{% if index_result_json%}
 			<div class="text-info">Index Test Result:</div>
 			{% endif %}
 			{% if benchmark_time_index %}
@@ -85,7 +92,7 @@
 	    
 	    </div>
 	    <div class="col-md-6">
-	    	{% if bitrate_results%}
+	    	{% if bitrate_result_json%}
 	    	<div class="text-info">Bitrate Test Result:</div>
 	    	{% endif %}
 	    	{% if benchmark_time_index %}
@@ -95,11 +102,11 @@
 	    </div>
     </div>
     
-    {% if test_errors %}
-    <div class="row">
+    {% if test_result_error %}
+    <div class="row" id='benchmark-error'>
     	<div class="text-info">Test ERROR:</div>
     	<div class="col-md-12">
-    	<textarea id="error-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_errors | safe }}
+    	<textarea id="error-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_result_error | safe }}
  		</textarea>
     	</div>
     </div>

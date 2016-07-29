@@ -2,8 +2,8 @@
 
 {% block header %}
 <script>
-	var index_result_data = {{ index_results |safe }};
-	var bitrate_result_data = {{ bitrate_results |safe }};
+	var index_result_data = {{ index_result_json |safe }};
+	var bitrate_result_data = {{ bitrate_result_json |safe }};
     
     AmCharts.ready(function () {
     	drawAmCharts(index_result_data, "chartdiv");
@@ -21,7 +21,7 @@
 	{% endif %}
 	
 	<div class="col-md-5">
-		{% if index_results%}
+		{% if index_result_json %}
 		<div class="text-info">Index Test Result:</div>
 		{% endif %}
 	
@@ -33,7 +33,7 @@
     <div class="col-md-1">
     </div>
     <div class="col-md-5">
-    	{% if bitrate_results%}
+    	{% if bitrate_result_json%}
     	<div class="text-info">Bitrate Test Result:</div>
     	{% endif %}
     
@@ -43,11 +43,11 @@
     	<div id="chartdiv2" style="width: 500px; height: 400px;"></div>
     </div>
     </div>
-    {% if test_errors %}
+    {% if test_result_error %}
     <div class="row">
     	<div class="text-info">Test ERROR:</div>
     	<div class="col-md-12">
-    	<textarea id="note-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_errors | safe }}
+    	<textarea id="note-text" resize: none; rows="5" placeholder="No ERROR" class="form-control">{{ test_result_error | safe }}
  		</textarea>
     	</div>
     </div>

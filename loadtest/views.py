@@ -18,25 +18,22 @@ def about(request):
 
 # 展示最新的压力测试结果
 def show_latest(request):
+    context = {}
+    
     # List = [{'color': '#FF0F00', 'Client': '7217', 'ResponseTime': '0-20'}, {'color': '#FF6600', 'Client': '288474', 'ResponseTime': '20-50'}, ];
     lastest_load_test_result = LoadTestResult.objects.latest(field_name='test_date');
     index_result = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
     bitrate_result = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
-    test_error = lastest_load_test_result.test_result_error
     
     index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index')
     bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate')
     
-    context = {'index_results': json.dumps(index_result),
-               'bitrate_results': json.dumps(bitrate_result),
-               'test_errors': test_error,
-               'test_date':lastest_load_test_result.test_date,
-               'test_type': lastest_load_test_result.test_type,
-               'test_version': lastest_load_test_result.test_version,
-               }
+    context.update(lastest_load_test_result.as_dict())
+    context.update({'index_result_json': json.dumps(index_result), 'bitrate_result_json': json.dumps(bitrate_result), })
     context.update(index_benchmark_summary)
     context.update(bitrate_benchmark_summary)
     
+    logger.debug("Context is: %s", context)
     return render(request, 'loadtest/latestResult.html', context)
 
 # 显示所有的压力测试类型。如果参数中包含测试类型，则显示最近10次的压力测试数据时间
@@ -54,20 +51,16 @@ def show_all_load_test_results(request, test_type=None):
         latest_load_test_result = load_test_results[0]
         index_results = _get_armcharts_column_list(latest_load_test_result.test_result_index)
         bitrate_results = _get_armcharts_column_list(latest_load_test_result.test_result_bitrate)
-        test_errors = load_test_results[0].test_result_error
-        
-        context.update({'load_test_results':load_test_results,
-                        'selected_test_id': latest_load_test_result.id,
-                       'index_results': json.dumps(index_results),
-                       'bitrate_results': json.dumps(bitrate_results),
-                       'test_errors': test_errors,
-                       'test_date': latest_load_test_result.test_date,
-                       'test_type': latest_load_test_result.test_type,
-                       'test_version': latest_load_test_result.test_version,
-                       })
         
         index_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_index, '_index')
         bitrate_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_bitrate, '_bitrate')
+        
+        context.update({'load_test_results':load_test_results,
+                        'selected_test_id': latest_load_test_result.id,
+                       'index_result_json': json.dumps(index_results),
+                       'bitrate_result_json': json.dumps(bitrate_results),
+                       })
+        context.update(latest_load_test_result.as_dict())
         context.update(index_benchmark_summary)
         context.update(bitrate_benchmark_summary)
         
@@ -82,34 +75,27 @@ def show_one_load_test_result(request, test_type, test_id):
     load_test_result = load_test_results.get(id=test_id);
     
     context = {}
-    context['selected_test_type'] = test_type
-    context['selected_test_id'] = test_id
-    context['test_type_list'] = get_test_type_json_list()
     
     index_results = _get_armcharts_column_list(load_test_result.test_result_index)
     bitrate_results = _get_armcharts_column_list(load_test_result.test_result_bitrate)
-    test_errors = load_test_result.test_result_error
-        
-    context.update({'load_test_results':load_test_results,
-                   'index_results': json.dumps(index_results),
-                   'bitrate_results': json.dumps(bitrate_results),
-                   'test_errors': test_errors,
-                   'test_date': load_test_result.test_date,
-                   'test_type': load_test_result.test_type,
-                    'test_version': load_test_result.test_version,
-                   })
-
     index_benchmark_summary = _get_benchmark_number(load_test_result.test_result_index, '_index')
     bitrate_benchmark_summary = _get_benchmark_number(load_test_result.test_result_bitrate, '_bitrate')
+        
+    context.update({'load_test_results':load_test_results,
+                   'index_result_json': json.dumps(index_results),
+                   'bitrate_result_json': json.dumps(bitrate_results),
+                   })
+    context.update({'selected_test_type':test_type, 'selected_test_id':test_id, 'test_type_list': get_test_type_json_list(), })
+    context.update(load_test_result.as_dict())
     context.update(index_benchmark_summary)
     context.update(bitrate_benchmark_summary)
-    
+    logger.debug("Context is: %s", context)
     return render(request, 'loadtest/testResults.html', context)
 
 # 获取所有的压力测试结果信息
 def get_all_load_test_results(request, test_type):
     loadtest_results = LoadTestResult.objects.filter(test_type=test_type);
-    results = [ob.as_json() for ob in loadtest_results]
+    results = [ob.as_dict() for ob in loadtest_results]
     logger.debug("Load test result for %s is %s", test_type, str(results))
     return HttpResponse(json.dumps(results), content_type="application/json")
 
