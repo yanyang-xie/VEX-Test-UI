@@ -21,16 +21,16 @@ def get_test_version_json_list():
 
 class LoadTestResult(models.Model):
     test_date = models.DateTimeField(default=get_current_day_start_date())
-    test_type = models.CharField(max_length=100, choices=CHOICES_TYPE, default='VOD')
-    test_version = models.CharField(max_length=10, choices=CHOICES_VERSION, default='2.7')
+    test_type = models.CharField(max_length=100, choices=CHOICES_TYPE, blank=False, null=False)
+    test_version = models.CharField(max_length=10, choices=CHOICES_VERSION, blank=False, null=False)
     test_result_index = models.TextField(default='')
     test_result_bitrate = models.TextField(default='')
-    test_result_error = models.TextField(blank=True, null=True, default='')
+    test_result_error = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
         return '[test_id:{}, test_date:{}, test_type:{}, test_version:{}]'.format(self.id, self.test_date.strftime('%Y-%m-%d'), self.test_type, self.test_version)
     
-    def as_json(self):
+    def as_dict(self):
         return dict(
             test_id=self.id,
             test_version=self.test_version,
@@ -40,7 +40,7 @@ class LoadTestResult(models.Model):
             test_result_bitrate=self.test_result_bitrate,
             test_result_error=self.test_result_error,
             )
- 
+    
     class Meta:
         db_table = 'load_test_result'
         ordering = ['-test_date']

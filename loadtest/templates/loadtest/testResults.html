@@ -69,7 +69,8 @@
     </div>
     <div class="row">
     	{% if benchmark_time_index %}
-		<div class="text-info">Test Date: {{test_date |date:'Y-m-d H:i'}}  |  Test Time: {{ benchmark_time_index }}  |  Current Sesssion:{{ concurrent_session_index }}/sec </div>
+		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}{{ test_version}}: {{test_date |date:'Y-m-d'}} &nbsp&nbsp&nbsp&nbsp
+	         Running {{ benchmark_time_index }} within concurrent {{ concurrent_session_index }}/sec sessions</div>
 		{% endif %}
 		<div class="col-md-6">
 			{% if index_results%}

@@ -27,8 +27,13 @@ def show_latest(request):
     index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index')
     bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate')
     
-    context = {'index_results': json.dumps(index_result), 'bitrate_results': json.dumps(bitrate_result), 'test_errors': test_error,
-               'test_date':lastest_load_test_result.test_date, 'test_type': lastest_load_test_result.test_type}
+    context = {'index_results': json.dumps(index_result),
+               'bitrate_results': json.dumps(bitrate_result),
+               'test_errors': test_error,
+               'test_date':lastest_load_test_result.test_date,
+               'test_type': lastest_load_test_result.test_type,
+               'test_version': lastest_load_test_result.test_version,
+               }
     context.update(index_benchmark_summary)
     context.update(bitrate_benchmark_summary)
     
@@ -56,7 +61,10 @@ def show_all_load_test_results(request, test_type=None):
                        'index_results': json.dumps(index_results),
                        'bitrate_results': json.dumps(bitrate_results),
                        'test_errors': test_errors,
-                       'test_date': latest_load_test_result.test_date})
+                       'test_date': latest_load_test_result.test_date,
+                       'test_type': latest_load_test_result.test_type,
+                       'test_version': latest_load_test_result.test_version,
+                       })
         
         index_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_index, '_index')
         bitrate_benchmark_summary = _get_benchmark_number(latest_load_test_result.test_result_bitrate, '_bitrate')
@@ -86,7 +94,10 @@ def show_one_load_test_result(request, test_type, test_id):
                    'index_results': json.dumps(index_results),
                    'bitrate_results': json.dumps(bitrate_results),
                    'test_errors': test_errors,
-                   'test_date': load_test_result.test_date })
+                   'test_date': load_test_result.test_date,
+                   'test_type': load_test_result.test_type,
+                    'test_version': load_test_result.test_version,
+                   })
 
     index_benchmark_summary = _get_benchmark_number(load_test_result.test_result_index, '_index')
     bitrate_benchmark_summary = _get_benchmark_number(load_test_result.test_result_bitrate, '_bitrate')
@@ -282,7 +293,7 @@ def _get_benchmark_number(benchmark_result, tag=''):
     
     results = {"average_response":0, "benchmark_time":0, "concurrent_session":0, "error_rate":0}
     results["average_response" + tag] = average_response
-    results["benchmark_time" + tag] = "{} Hour {} Minutes".format(str(benchmark_time / 3600), str((59 + benchmark_time - 3600 * (benchmark_time / 3600)) / 60))
+    results["benchmark_time" + tag] = "{} hour {} minutes".format(str(benchmark_time / 3600), str((59 + benchmark_time - 3600 * (benchmark_time / 3600)) / 60))
     results["concurrent_session" + tag] = request_number / benchmark_time
     results["error_rate" + tag] = round((float(error_number) / request_number) * 100, 2)
     return results

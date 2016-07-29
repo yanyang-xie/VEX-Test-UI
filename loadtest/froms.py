@@ -45,7 +45,7 @@ class VexLoadTestInsertionForm(forms.ModelForm):
         choices=(CHOICES_VERSION), required=True,
         error_messages={
             'invalid':  u"test version should be 2.3, 2.7 or 2.8",
-            'required': u"test_type must be set",
+            'required': u"test_version must be set",
         }
     )
     

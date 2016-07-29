@@ -5,14 +5,13 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test.testcases import TestCase
 
-from VEXTestUI.settings import BASE_DIR
 from loadtest.views import convert_request_body_to_form_validation
 from loadtest.models import LoadTestResult
 
-
+# https://docs.djangoproject.com/en/1.8/topics/testing/tools/
 class LoadTestResultViewTests(TestCase):
     expected_loadtest_data_file = 'expected_request_body_file.xml'
-    test_data_dir = os.path.join(BASE_DIR, 'loadtest', 'testdatas')
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'testdatas')
     
     def setUp(self):
         self.test_client = Client()
@@ -57,3 +56,6 @@ class LoadTestResultViewTests(TestCase):
         url = reverse("index")
         response = self.test_client.get(url)
         self.assertContains(response, self.converted_content['test_date'] , status_code=200)
+        self.assertEqual(response.context['test_errors'], self.converted_content['test_result_error'])
+
+print os.path.dirname(__file__)
