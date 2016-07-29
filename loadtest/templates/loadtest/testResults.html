@@ -3,7 +3,7 @@
 {% block header %}
 <script>
     AmCharts.ready(function () {
-        $("#load_test_type_list").val("{{ selected_test_type }}");
+        $("#load_test_version_list").val("{{ selected_test_version }}");
         $("#load_test_date_list").val("{{ selected_test_id }}");
 		
     	{% if index_result_json %}
@@ -42,8 +42,8 @@
 	}
 	
 	function getRecentlyLoadTestResultByTestID(test_id){
-		test_type = $("#load_test_type_list").val();
-		window.location.href="/showOne/" + test_type + "/" + test_id;
+		test_version = $("#load_test_version_list").val();
+		window.location.href="/showOne/" + test_version + "/" + test_id;
 	}
 </script>
 {% endblock%}
@@ -52,12 +52,12 @@
 <p>.</p><p>.</p>
 	<div class="row">
         <div class= "form-group col-xs-12">
-             <label for= "sceneModel_title" class="col-sm-1 control-label" >测试类型: </label>
+             <label for= "sceneModel_title" class="col-sm-1 control-label" >测试版本: </label>
              <div class= "col-sm-3">
-             	<select class= "form-control selectpicker" name="load_test_type" id="load_test_type_list" onChange="getRecentlyLoadTestResult(this.value)"> 
+             	<select class= "form-control selectpicker" name="load_test_type" id="load_test_version_list" onChange="getRecentlyLoadTestResult(this.value)"> 
 					{% if test_type_list %}
-						{% for test_type in test_type_list %}
-							<option value="{{ test_type.id }}">{{test_type.name}}</option>
+						{% for test_version in test_version_list %}
+							<option value="{{ test_version.id }}">{{test_version.name}}</option>
 						{% endfor %}     
 					{% endif %}
 				</select>
@@ -76,7 +76,7 @@
     </div>
     <div class="row" id='benchmark-result'>
     	{% if benchmark_time_index %}
-		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}{{ test_version}}: {{test_date |date:'Y-m-d'}} &nbsp&nbsp&nbsp&nbsp
+		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}  [{{ test_version }}]: {{ test_date }} &nbsp&nbsp&nbsp&nbsp
 	         Running {{ benchmark_time_index }} within concurrent {{ concurrent_session_index }}/sec sessions</div>
 		{% endif %}
 		<div class="col-md-6">

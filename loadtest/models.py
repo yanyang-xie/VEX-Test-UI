@@ -4,8 +4,8 @@ from django.db import models
 from loadtest.util import get_current_day_start_date
 
 
-CHOICES_TYPE = [('VOD', 'vod'), ('cDVR', 'cdvr'), ('Linear', 'linear')]
-CHOICES_VERSION = [('2.3', '2.3'), ('2.7', '2.7'), ('2.8', '2.8')]
+CHOICES_TYPE = [('T6VOD', 'T6VOD'), ('T6cDVR', 'T6cDVR'), ('T6Linear', 'T6Linear')]
+CHOICES_VERSION = [('VEX-2.3', '2.3'), ('VEX-2.7', '2.7'), ('VEX-2.8', '2.8')]
 
 def get_test_type_json_list():
     test_type_list = []

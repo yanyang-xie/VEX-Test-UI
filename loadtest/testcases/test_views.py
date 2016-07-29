@@ -55,6 +55,7 @@ class LoadTestResultViewTests(TestCase):
         
         url = reverse("index")
         response = self.test_client.get(url)
+        print 
         self.assertContains(response, self.converted_content['test_date'] , status_code=200)
         self.assertEqual(response.context['test_errors'], self.converted_content['test_result_error'])
 

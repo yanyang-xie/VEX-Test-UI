@@ -7,7 +7,8 @@ from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
 from loadtest.froms import VexLoadTestInsertionForm
-from loadtest.models import LoadTestResult, get_test_type_json_list
+from loadtest.models import LoadTestResult, get_test_type_json_list, \
+    get_test_version_json_list
 from loadtest.util import get_current_day_start_date
 
 
@@ -45,7 +46,7 @@ def show_all_load_test_results(request, test_type=None):
     
     load_test_results = LoadTestResult.objects.all()[0:10] if test_type is None else LoadTestResult.objects.filter(test_type=test_type);
     context = {} if test_type is None else {'selected_test_type': test_type}
-    context['test_type_list'] = get_test_type_json_list()
+    context.update({'test_type_list': get_test_type_json_list(), 'test_version_list': get_test_version_json_list(), })
     
     if len(load_test_results) > 0:
         latest_load_test_result = load_test_results[0]
@@ -57,6 +58,7 @@ def show_all_load_test_results(request, test_type=None):
         
         context.update({'load_test_results':load_test_results,
                         'selected_test_id': latest_load_test_result.id,
+                        'selected_test_version':latest_load_test_result.test_version,
                        'index_result_json': json.dumps(index_results),
                        'bitrate_result_json': json.dumps(bitrate_results),
                        })
@@ -68,10 +70,10 @@ def show_all_load_test_results(request, test_type=None):
     return render(request, 'loadtest/testResults.html', context)
 
 # 显示某一次压力测试结果    
-def show_one_load_test_result(request, test_type, test_id):
-    logger.debug("Show test results for %s[test_id: %s]", test_type, test_id)
+def show_one_load_test_result(request, test_version, test_id):
+    logger.debug("Show test results for version %s, test_id: %s", test_version, test_id)
     
-    load_test_results = LoadTestResult.objects.filter(test_type=test_type);
+    load_test_results = LoadTestResult.objects.filter(test_version=test_version);
     load_test_result = load_test_results.get(id=test_id);
     
     context = {}
@@ -82,10 +84,13 @@ def show_one_load_test_result(request, test_type, test_id):
     bitrate_benchmark_summary = _get_benchmark_number(load_test_result.test_result_bitrate, '_bitrate')
         
     context.update({'load_test_results':load_test_results,
-                   'index_result_json': json.dumps(index_results),
-                   'bitrate_result_json': json.dumps(bitrate_results),
-                   })
-    context.update({'selected_test_type':test_type, 'selected_test_id':test_id, 'test_type_list': get_test_type_json_list(), })
+                    'index_result_json': json.dumps(index_results),
+                    'bitrate_result_json': json.dumps(bitrate_results),
+                    'selected_test_version':test_version,
+                    'selected_test_id':test_id,
+                    'test_type_list': get_test_type_json_list(),
+                    'test_version_list': get_test_version_json_list(),
+                    })
     context.update(load_test_result.as_dict())
     context.update(index_benchmark_summary)
     context.update(bitrate_benchmark_summary)
