@@ -5,13 +5,12 @@ import string
 
 from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.cache import cache_page
+
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list, \
     get_test_version_json_list
 from loadtest.util import get_current_day_start_date
-
 
 logger = logging.getLogger(__name__)
 
