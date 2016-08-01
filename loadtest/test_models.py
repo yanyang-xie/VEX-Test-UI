@@ -9,8 +9,8 @@ from loadtest.util import get_datetime_after, get_current_day_start_date
 
 class LoadTestResultTests(TestCase):
     test_date = get_current_day_start_date(get_datetime_after(delta_days=300))
-    test_type = 'T6VOD'
-    test_version = 'VEX-2.7'
+    test_type = 'VOD_T6'
+    test_version = '2.7'
     test_result_index = "index1"
     test_result_bitrate = "bitrate1"
 
@@ -20,7 +20,7 @@ class LoadTestResultTests(TestCase):
                 test_result_index=self.test_result_index, test_result_bitrate=self.test_result_bitrate)
 
     def test_list(self):
-        response = self.client.get(reverse("getAll", args=(self.test_type,)))
+        response = self.client.get(reverse("getAll", args=(self.test_version,)))
 
         self.assertContains(response, self.test_result_index)
         self.assertContains(response, self.test_result_bitrate)
@@ -47,7 +47,7 @@ class LoadTestResultTests(TestCase):
         instance.test_result_bitrate = alternate_bitrate_content
         instance.save()
         
-        response = self.client.get(reverse("getAll", args=(self.test_type,)))
+        response = self.client.get(reverse("getAll", args=(self.test_version,)))
         self.assertNotContains(response, self.test_result_bitrate)
         self.assertContains(response, self.test_result_index)
         

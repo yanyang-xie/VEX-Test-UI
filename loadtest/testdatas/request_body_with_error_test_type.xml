@@ -41,5 +41,5 @@
     </error_results>
     <test_type>VOD1234</test_type>
     <test_date>2017-01-09</test_date>
-    <test_version>VEX-2.7</test_version>
+    <test_version>2.7</test_version>
 </loadtest_data>
