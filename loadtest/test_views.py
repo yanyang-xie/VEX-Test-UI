@@ -42,7 +42,7 @@ class LoadTestResultViewTests(TestCase):
         response = self.test_client.post(reverse("insertLoadTestResult"), data=self.expected_loadtest_data_content, content_type='application/xml')
         self.assertContains(response, 'Test result has been saved.', status_code=200)
         
-        url = reverse("showAllLoadTestResults", args=(self.converted_content['test_type'],))
+        url = reverse("showAll", args=(self.converted_content['test_type'],))
         response = self.test_client.get(url)
         self.assertContains(response, self.converted_content['test_type'] , status_code=200)
         

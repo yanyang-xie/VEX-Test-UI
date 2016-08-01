@@ -7,20 +7,20 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand hidden-sm" href="{% url 'showLatestTestResult' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'navbar-测试UI'])">VEX测试UI</a>
+      <a class="navbar-brand hidden-sm" href="{% url 'latest' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'navbar-测试UI'])">VEX测试UI</a>
     </div>
     <div class="navbar-collapse collapse" role="navigation">
       <ul class="nav navbar-nav">
-      	<li><a href="{% url 'showAllLoadTestResults' 'VOD_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">VOD压力测试结果</a></li>
-      	<li><a href="{% url 'showAllLoadTestResults' 'CDVR_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">cDVR压力测试结果</a></li>
-      	<li><a href="{% url 'showAllLoadTestResults' 'LINEAR_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Linear压力测试结果</a></li>
+      	<li><a href="{% url 'showAll' 'VOD_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">VOD压力测试结果</a></li>
+      	<li><a href="{% url 'showAll' 'CDVR_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">cDVR压力测试结果</a></li>
+      	<li><a href="{% url 'showAll' 'LINEAR_T6' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Linear压力测试结果</a></li>
       	<!--
         <li><a href="http://v3.bootcss.com/" target="_blank" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'v3doc'])">Bootstrap3中文文档</a></li>
         <li><a href="http://www.jquery123.com/" target="_blank" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'jquery'])">jQuery API</a></li>
       	-->
       </ul>
       <ul class="nav navbar-nav navbar-right hidden-sm">
-        <li><a href="/about" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'about'])">关于</a></li>
+        <li><a href="{% url 'about' %}" onclick="_hmt.push(['_trackEvent', 'navbar', 'click', 'about'])">关于</a></li>
       </ul>
     </div>
   </div>

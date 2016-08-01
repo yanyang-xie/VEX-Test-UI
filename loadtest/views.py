@@ -6,11 +6,11 @@ import string
 from django.http.response import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
-
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list, \
-    get_test_version_json_list
+    get_test_version_json_list, get_test_module_json_list
 from loadtest.util import get_current_day_start_date
+
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ def show_latest(request):
     index_result = _get_armcharts_column_list(lastest_load_test_result.test_result_index)
     bitrate_result = _get_armcharts_column_list(lastest_load_test_result.test_result_bitrate)
     
-    index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index')
-    bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate')
+    index_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_index, '_index', lastest_load_test_result.test_instance_number)
+    bitrate_benchmark_summary = _get_benchmark_number(lastest_load_test_result.test_result_bitrate, '_bitrate', lastest_load_test_result.test_instance_number)
     
     context.update(lastest_load_test_result.as_dict())
     context.update({'index_result_json': json.dumps(index_result), 'bitrate_result_json': json.dumps(bitrate_result), })
@@ -48,7 +48,9 @@ def show_all_load_test_results(request, test_type=None):
     
     load_test_results = LoadTestResult.objects.all()[0:10] if test_type is None else LoadTestResult.objects.filter(test_type=test_type);
     context = {} if test_type is None else {'selected_test_type': test_type}
-    context.update({'test_type_list': get_test_type_json_list(), 'test_version_list': get_test_version_json_list(), })
+    context.update({'test_type_list': get_test_type_json_list(),
+                    'test_version_list': get_test_version_json_list(),
+                    'test_module_list': get_test_module_json_list(), })
     
     if len(load_test_results) > 0:
         latest_load_test_result = load_test_results[0]
@@ -60,6 +62,7 @@ def show_all_load_test_results(request, test_type=None):
         
         context.update({'load_test_results':load_test_results,
                         'selected_test_id': latest_load_test_result.id,
+                        'selected_test_module':latest_load_test_result.test_module,
                         'selected_test_version':latest_load_test_result.test_version,
                        'index_result_json': json.dumps(index_results),
                        'bitrate_result_json': json.dumps(bitrate_results),
@@ -91,8 +94,10 @@ def show_one_load_test_result(request, test_id):
                     'bitrate_result_json': json.dumps(bitrate_results),
                     'selected_test_version':load_test_result.test_version,
                     'selected_test_id':test_id,
+                    'selected_test_module':load_test_result.test_module,
                     'test_type_list': get_test_type_json_list(),
                     'test_version_list': get_test_version_json_list(),
+                    'test_module_list': get_test_module_json_list(),
                     })
     context.update(load_test_result.as_dict())
     context.update(index_benchmark_summary)
@@ -101,10 +106,16 @@ def show_one_load_test_result(request, test_id):
     return render(request, 'loadtest/testResults.html', context)
 
 # 获取所有的压力测试结果信息
-def get_all_load_test_results(request, test_type):
-    loadtest_results = LoadTestResult.objects.filter(test_type=test_type);
+def get_all_load_test_results(request, test_version):
+    loadtest_results = LoadTestResult.objects.filter(test_version=test_version);
     results = [ob.as_dict() for ob in loadtest_results]
-    logger.debug("Load test result for %s is %s", test_type, str(results))
+    logger.debug("Load test result for %s is %s", test_version, str(results))
+    return HttpResponse(json.dumps(results), content_type="application/json")
+
+def get_all_load_test_results_by_module(request, test_type, test_version, test_module):
+    loadtest_results = LoadTestResult.objects.filter(test_type=test_type, test_version=test_version, test_module=test_module);
+    results = [ob.as_dict() for ob in loadtest_results]
+    logger.debug("Load test result for %s is %s", test_version, str(results))
     return HttpResponse(json.dumps(results), content_type="application/json")
 
 # 插入一条压力测试结果(通过form验证)
@@ -258,7 +269,7 @@ def _get_armcharts_column_list(benchmark_result):
     final_convert_column_list = convert_column_list[1:-1] + [convert_column_list[0]]
     return final_convert_column_list
 
-def _get_benchmark_number(benchmark_result, tag=''):
+def _get_benchmark_number(benchmark_result, tag='', instance_number=2):
     average_response = 0
     benchmark_time = 0
     request_number = 0
@@ -288,7 +299,7 @@ def _get_benchmark_number(benchmark_result, tag=''):
     results = {"average_response":0, "benchmark_time":0, "concurrent_session":0, "error_rate":0}
     results["average_response" + tag] = average_response
     results["benchmark_time" + tag] = "{} hour {} minutes".format(str(benchmark_time / 3600), str((59 + benchmark_time - 3600 * (benchmark_time / 3600)) / 60))
-    results["concurrent_session" + tag] = request_number / benchmark_time
+    results["concurrent_session" + tag] = ((request_number / benchmark_time) + 1) / instance_number
     results["error_rate" + tag] = round((float(error_number) / request_number) * 100, 2)
     return results
 

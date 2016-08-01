@@ -19,19 +19,25 @@ def get_test_version_json_list():
         test_version_list.append({"id":choice[0], "name":choice[1]})
     return test_version_list
 
+def get_test_module_json_list():
+    test_module_list = []
+    for choice in CHOICES_MODULE:
+        test_module_list.append({"id":choice[0], "name":choice[1]})
+    return test_module_list
+
 class LoadTestResult(models.Model):
     test_date = models.DateTimeField(default=get_current_day_start_date())
     test_type = models.CharField(max_length=100, choices=CHOICES_TYPE, blank=False, null=False)
     test_version = models.CharField(max_length=10, choices=CHOICES_VERSION, blank=False, null=False)
     test_module = models.CharField(max_length=10, choices=CHOICES_MODULE, default=CHOICES_MODULE[0][0])
-    test_instance_size = models.IntegerField(default=2)  # 压力测试的instance数量
+    test_instance_number = models.IntegerField(default=2)  # 压力测试的instance数量
     test_result_index = models.TextField(default='')
     test_result_bitrate = models.TextField(default='')
     test_result_error = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
         return '[test_id:{}, test_date:{}, test_type:{}, test_version:{}, test_module:{}, test_instance_size:{}]'\
-                    .format(self.id, self.test_date.strftime('%Y-%m-%d'), self.test_type, self.test_version, self.test_module, self.test_instance_size)
+                    .format(self.id, self.test_date.strftime('%Y-%m-%d'), self.test_type, self.test_version, self.test_module, self.test_instance_number)
     
     def as_dict(self):
         return dict(

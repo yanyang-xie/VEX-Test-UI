@@ -4,6 +4,7 @@
 <script>
     AmCharts.ready(function () {
         $("#load_test_version_list").val("{{ selected_test_version }}");
+        $("#load_test_module_list").val("{{ selected_test_module }}");
         $("#load_test_date_list").val("{{ selected_test_id }}");
 		
     	{% if index_result_json %}
@@ -14,12 +15,12 @@
         {% endif%}
     });
     
-    function getRecentlyLoadTestResult(test_type_id)
+    function getRecentlyLoadTestResult(test_version_id)
 	{
-		
-		$.ajax({     
-		    type: "GET",   
-		    url: "/getAll/"+test_type_id,
+		//alert("{% url 'getAll' test_version_id %}");
+		$.ajax({
+		    type: "GET",
+		    url: "{% url 'getAll' test_version_id %}" + test_version_id,
 		    dataType:"json",     
 		    success: function(data){
 			    var test_date_element = $("#load_test_date_list");
@@ -41,8 +42,37 @@
 		})
 	}
 	
+	function getLoadTestResultByModule(test_module_id)
+	{
+		var test_version = $("#load_test_version_list").val();
+		var test_type = "{{ test_type }}";
+		
+		$.ajax({
+		    type: "GET",
+		    url: "{% url 'allByModule' test_type test_version test_module_id %}" + test_module_id,
+		    dataType:"json",
+		    success: function(data){
+			    var test_date_element = $("#load_test_date_list");
+			    test_date_element.empty();
+			    
+			    for(i=0;i<data.length;i++){
+			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
+			    }
+			    
+			    if (data==''){
+			    	$('#benchmark-result').hide();
+			    	$('#benchmark-error').hide();
+			    }else{
+			    	window.location.href="/showOne/" + data[0].test_id;
+			    	$('#benchmark-result').show();
+			    	$('#benchmark-error').show();
+			    }
+		    }
+		})
+	}
+	
 	function getRecentlyLoadTestResultByTestID(test_id){
-		window.location.href="/showOne/" + test_id;
+		window.location.href= "{% url 'showOne' '' %}" + test_id;
 	}
 </script>
 {% endblock%}
@@ -53,17 +83,29 @@
         <div class= "form-group col-xs-12">
              <label for= "sceneModel_title" class="col-sm-1 control-label" >测试版本: </label>
              <div class= "col-sm-3">
-             	<select class= "form-control selectpicker" name="load_test_type" id="load_test_version_list" onChange="getRecentlyLoadTestResult(this.value)"> 
+             	<select class= "form-control selectpicker" name="load_test_version_list" id="load_test_version_list" onChange="getRecentlyLoadTestResult(this.value)"> 
 					{% if test_type_list %}
 						{% for test_version in test_version_list %}
 							<option value="{{ test_version.id }}">{{test_version.name}}</option>
-						{% endfor %}     
+						{% endfor %}
 					{% endif %}
 				</select>
              </div>
+             
+             <label for= "sceneModel_title" class="col-sm-1 control-label" >测试模块: </label>
+             <div class= "col-sm-3">
+             	<select class= "form-control selectpicker" name="load_test_module_list" id="load_test_module_list" onChange="getLoadTestResultByModule(this.value)"> 
+					{% if test_module_list %}
+						{% for test_module in test_module_list %}
+							<option value="{{ test_module.id }}">{{test_module.name}}</option>
+						{% endfor %}    
+					{% endif %}
+				</select>
+             </div>
+             
              <label for= "scene_title" class="col-sm-1 control-label">测试日期: </label>
              <div class= "col-sm-3">
-                  <select class="form-control selectpicker" name="load_test_date" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
+                  <select class="form-control selectpicker" name="load_test_date_list" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
 					{% if load_test_results %}
 						{% for test_result in load_test_results %}
 							<option value="{{ test_result.id }}">{{test_result.test_date |date:'Y-m-d'}}</option>
@@ -75,7 +117,7 @@
     </div>
     <div class="row" id='benchmark-result'>
     	{% if benchmark_time_index %}
-		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}  [{{ test_version }}]: {{ test_date }} &nbsp&nbsp&nbsp&nbsp
+		<div class="text-info">&nbsp&nbsp&nbsp&nbsp{{ test_type }}  [{{ test_module |lower }}-{{ test_version }}]: {{ test_date }} &nbsp&nbsp&nbsp&nbsp
 	         Running {{ benchmark_time_index }} within concurrent {{ concurrent_session_index }}/sec sessions</div>
 		{% endif %}
 		<div class="col-md-6">
