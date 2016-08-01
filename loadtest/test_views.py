@@ -5,8 +5,9 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from django.test.testcases import TestCase
 
-from loadtest.views import convert_request_body_to_form_validation
 from loadtest.models import LoadTestResult
+from loadtest.views import convert_request_body_to_form_validation
+
 
 # https://docs.djangoproject.com/en/1.8/topics/testing/tools/
 class LoadTestResultViewTests(TestCase):
