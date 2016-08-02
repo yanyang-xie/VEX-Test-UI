@@ -24,6 +24,6 @@ class VexLoadTestInsertionFormTests(TestCase):
         self.assertFalse(self.form.is_valid())
         
     def test_invalid_forms_response(self):
-        response = self.test_client.post(reverse("insertLoadTestResult"), data=self.form_data, content_type='application/xml')
+        response = self.test_client.post(reverse("insert"), data=self.form_data, content_type='application/xml')
         # self.assertFormError(response, self.form, 'test_type', 'This field is required.')
         self.assertContains(response, self.converted_content['test_type'], status_code=400)

@@ -30,7 +30,7 @@ class LoadTestResultViewTests(TestCase):
         self.assertTrue(converted_content['test_result_error'].find('222') > -1)
     
     def test_insert_with_form(self):
-        response = self.test_client.post(reverse("insertLoadTestResult"), data=self.expected_loadtest_data_content, content_type='application/xml')
+        response = self.test_client.post(reverse("insert"), data=self.expected_loadtest_data_content, content_type='application/xml')
         print response
         self.assertContains(response, 'Test result has been saved.', status_code=200)
         
@@ -39,7 +39,7 @@ class LoadTestResultViewTests(TestCase):
         self.assertEqual(latest_obj.test_result_bitrate, self.converted_content['test_result_bitrate'])
     
     def test_show_all_load_test_result(self):
-        response = self.test_client.post(reverse("insertLoadTestResult"), data=self.expected_loadtest_data_content, content_type='application/xml')
+        response = self.test_client.post(reverse("insert"), data=self.expected_loadtest_data_content, content_type='application/xml')
         self.assertContains(response, 'Test result has been saved.', status_code=200)
         
         url = reverse("showAll", args=(self.converted_content['test_type'],))
@@ -48,7 +48,7 @@ class LoadTestResultViewTests(TestCase):
         
     def test_show_index_result(self):
         # django中每步创建的对象，在退出测试的时候都会被销毁，包括数据库中的。
-        response = self.test_client.post(reverse("insertLoadTestResult"), data=self.expected_loadtest_data_content, content_type='application/xml')
+        response = self.test_client.post(reverse("insert"), data=self.expected_loadtest_data_content, content_type='application/xml')
         self.assertContains(response, 'Test result has been saved.', status_code=200)
         
         latest_obj = LoadTestResult.objects.latest()

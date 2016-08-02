@@ -15,12 +15,11 @@
         {% endif%}
     });
     
-    function getRecentlyLoadTestResult(test_version_id)
+    function getRecentlyLoadTestResultByVersion(test_version_id)
 	{
-		//alert("{% url 'getAll' test_version_id %}");
 		$.ajax({
 		    type: "GET",
-		    url: "{% url 'getAll' test_version_id %}" + test_version_id,
+		    url: "{% url 'allByVersion' test_version_id %}" + test_version_id,
 		    dataType:"json",     
 		    success: function(data){
 			    var test_date_element = $("#load_test_date_list");
@@ -30,11 +29,11 @@
 			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
 			    }
 			    
-			    if (data==''){
+			    if (data==""){
 			    	$('#benchmark-result').hide();
 			    	$('#benchmark-error').hide();
 			    }else{
-			    	window.location.href="/showOne/" + data[0].test_id;
+			    	window.location.href="{% url 'showOne' '' %}" + data[0].test_id;
 			    	$('#benchmark-result').show();
 			    	$('#benchmark-error').show();
 			    }
@@ -53,7 +52,8 @@
 		    dataType:"json",
 		    success: function(data){
 			    var test_date_element = $("#load_test_date_list");
-			    test_date_element.empty();
+				test_date_element.append('<option value="' + 1 + '">' + 2 + '</option>');
+				test_date_element.empty();
 			    
 			    for(i=0;i<data.length;i++){
 			    	test_date_element.append("<option value='"+data[i].test_id+"'>"+data[i].test_date+"</option>");
@@ -63,7 +63,7 @@
 			    	$('#benchmark-result').hide();
 			    	$('#benchmark-error').hide();
 			    }else{
-			    	window.location.href="/showOne/" + data[0].test_id;
+			    	window.location.href="{% url 'showOne' '' %}" + data[0].test_id;
 			    	$('#benchmark-result').show();
 			    	$('#benchmark-error').show();
 			    }
@@ -83,7 +83,7 @@
         <div class= "form-group col-xs-12">
              <label for= "sceneModel_title" class="col-sm-1 control-label" >测试版本: </label>
              <div class= "col-sm-3">
-             	<select class= "form-control selectpicker" name="load_test_version_list" id="load_test_version_list" onChange="getRecentlyLoadTestResult(this.value)"> 
+             	<select class= "form-control selectpicker" name="load_test_version_list" id="load_test_version_list" onChange="getRecentlyLoadTestResultByVersion(this.value)"> 
 					{% if test_type_list %}
 						{% for test_version in test_version_list %}
 							<option value="{{ test_version.id }}">{{test_version.name}}</option>
@@ -105,12 +105,11 @@
              
              <label for= "scene_title" class="col-sm-1 control-label">测试日期: </label>
              <div class= "col-sm-3">
-                  <select class="form-control selectpicker" name="load_test_date_list" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
-					{% if load_test_results %}
+                  <select class="form-control selectpicker" name="load_test_date" id="load_test_date_list" onChange="getRecentlyLoadTestResultByTestID(this.value)"> 
+					
 						{% for test_result in load_test_results %}
 							<option value="{{ test_result.id }}">{{test_result.test_date |date:'Y-m-d'}}</option>
 						{% endfor %}
-					{% endif %}
 				</select>
              </div>
         </div>

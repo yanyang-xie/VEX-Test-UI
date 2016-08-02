@@ -4,7 +4,7 @@ import logging
 import string
 
 from django.http.response import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, render_to_response
 
 from loadtest.froms import VexLoadTestInsertionForm
 from loadtest.models import LoadTestResult, get_test_type_json_list, \
@@ -14,6 +14,13 @@ from loadtest.util import get_current_day_start_date
 
 logger = logging.getLogger(__name__)
 
+def page_not_found(request):
+    return render_to_response('loadtest/error/404.html')
+
+def page_error(request):
+    return render_to_response('loadtest/error/500.html')
+
+# 关于
 # @cache_page(60 * 60 * 24)
 def about(request):
     return render(request, 'loadtest/about.html')
@@ -80,7 +87,7 @@ def show_one_load_test_result(request, test_id):
     logger.debug("Show test results for test_id: %s", test_id)
     
     load_test_result = LoadTestResult.objects.get(id=test_id);
-    load_test_results = LoadTestResult.objects.filter(test_version=load_test_result.test_version, test_type=load_test_result.test_type);
+    load_test_results = LoadTestResult.objects.filter(test_version=load_test_result.test_version, test_type=load_test_result.test_type, test_module=load_test_result.test_module);
     
     context = {}
     
@@ -106,7 +113,7 @@ def show_one_load_test_result(request, test_id):
     return render(request, 'loadtest/testResults.html', context)
 
 # 获取所有的压力测试结果信息
-def get_all_load_test_results(request, test_version):
+def get_all_load_test_results_by_version(request, test_version):
     loadtest_results = LoadTestResult.objects.filter(test_version=test_version);
     results = [ob.as_dict() for ob in loadtest_results]
     logger.debug("Load test result for %s is %s", test_version, str(results))
