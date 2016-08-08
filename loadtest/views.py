@@ -11,11 +11,10 @@ from loadtest.models import LoadTestResult, get_test_type_json_list, \
     get_test_version_json_list, get_test_module_json_list
 from loadtest.util import get_current_day_start_date
 
-
 logger = logging.getLogger(__name__)
 
 def page_not_found(request):
-    return render_to_response('/404.html')
+    return render_to_response('loadtest/error/404.html')
 
 def page_error(request):
     return render_to_response('loadtest/error/500.html')
@@ -113,10 +112,10 @@ def show_one_load_test_result(request, test_id):
     return render(request, 'loadtest/testResults.html', context)
 
 # 获取所有的压力测试结果信息
-def get_all_load_test_results_by_version(request, test_version):
-    loadtest_results = LoadTestResult.objects.filter(test_version=test_version);
+def get_all_load_test_results_by_version(request, test_type, test_version):
+    loadtest_results = LoadTestResult.objects.filter(test_type=test_type, test_version=test_version);
     results = [ob.as_dict() for ob in loadtest_results]
-    logger.debug("Load test result for %s is %s", test_version, str(results))
+    logger.debug("Load test result for %s-%s is %s", test_type, test_version, str(results))
     return HttpResponse(json.dumps(results), content_type="application/json")
 
 def get_all_load_test_results_by_module(request, test_type, test_version, test_module):

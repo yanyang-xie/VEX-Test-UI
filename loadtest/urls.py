@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^showAll/(?P<test_type>.*)', 'loadtest.views.show_all_load_test_results', name='showAll'),
     url(r'^showOne/(?P<test_id>.*)', 'loadtest.views.show_one_load_test_result', name='showOne'),
     
-    url(r'^getAllByVersion/(?P<test_version>.*)', 'loadtest.views.get_all_load_test_results_by_version', name='allByVersion'),
+    url(r'^getAllByVersion/(?P<test_type>.*)/(?P<test_version>.*)', 'loadtest.views.get_all_load_test_results_by_version', name='allByVersion'),
     url(r'^getAllByModule/(?P<test_type>.*)/(?P<test_version>.*)/(?P<test_module>.*)', 'loadtest.views.get_all_load_test_results_by_module', name='allByModule'),
     
     url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insert'),

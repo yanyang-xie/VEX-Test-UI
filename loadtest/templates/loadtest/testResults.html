@@ -17,9 +17,10 @@
     
     function getRecentlyLoadTestResultByVersion(test_version_id)
 	{
+		var test_type = "{{ test_type }}";
 		$.ajax({
 		    type: "GET",
-		    url: "{% url 'allByVersion' test_version_id %}" + test_version_id,
+		    url: "{% url 'allByVersion' test_type test_version_id %}" + test_version_id,
 		    dataType:"json",     
 		    success: function(data){
 			    var test_date_element = $("#load_test_date_list");
