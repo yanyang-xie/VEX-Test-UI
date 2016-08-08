@@ -20,7 +20,7 @@ class LoadTestResultTests(TestCase):
                 test_result_index=self.test_result_index, test_result_bitrate=self.test_result_bitrate)
 
     def test_list(self):
-        response = self.client.get(reverse("allByVersion", args=(self.test_version,)))
+        response = self.client.get(reverse("allByVersion", args=(self.test_type, self.test_version,)))
 
         self.assertContains(response, self.test_result_index)
         self.assertContains(response, self.test_result_bitrate)
@@ -47,7 +47,7 @@ class LoadTestResultTests(TestCase):
         instance.test_result_bitrate = alternate_bitrate_content
         instance.save()
         
-        response = self.client.get(reverse("allByVersion", args=(self.test_version,)))
+        response = self.client.get(reverse("allByVersion", args=(self.test_type, self.test_version,)))
         self.assertNotContains(response, self.test_result_bitrate)
         self.assertContains(response, self.test_result_index)
         
