@@ -23,6 +23,6 @@ autorestart=true
 
 --------------------生产环境阶段------------------
 项目代码目录:/home/yanyang/VEXTestUI
-执行uwsgi --ini config/uwsgi.init （可以启动supervisord去执行这个命令）
-合并nginx.conf到/etc/nginx.conf
+执行uwsgi --ini config/uwsgi.ini （可以启动supervisord去维护这个命令),执行后看看状态ps -ef | grep uwsgi
+合并nginx.conf到/etc/nginx.conf之后重启nginx
 

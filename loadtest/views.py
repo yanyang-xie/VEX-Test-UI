@@ -15,7 +15,7 @@ from loadtest.util import get_current_day_start_date
 logger = logging.getLogger(__name__)
 
 def page_not_found(request):
-    return render_to_response('loadtest/error/404.html')
+    return render_to_response('/404.html')
 
 def page_error(request):
     return render_to_response('loadtest/error/500.html')
