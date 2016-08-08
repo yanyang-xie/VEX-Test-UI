@@ -12,8 +12,9 @@ python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
 
 或者采用supervisord
+vi /etc/supervisord.conf
 [program:vex-test-ui]
-directory=/home/yanyang/VEX-Test-UI
+directory=/home/yanyang/VEXTestUI
 user=root
 command=python manage.py runserver 0.0.0.0:8000
 process_name=vex-test-ui
@@ -23,8 +24,19 @@ autorestart=true
 
 --------------------生产环境阶段------------------
 项目代码目录:/home/yanyang/VEXTestUI
-执行uwsgi --ini config/uwsgi.ini （可以启动supervisord去维护这个命令),执行后看看状态ps -ef | grep uwsgi
+执行uwsgi --ini config/uwsgi.ini （可以启动supervisord service去维护项目运行),执行后看看状态ps -ef | grep uwsgi
 合并nginx.conf到/etc/nginx.conf之后重启nginx
+
+采用supervisord启动
+vi /etc/supervisord.conf
+[program:vextestui]
+directory=/home/yanyang/VEXTestUI
+user=root
+command=uwsgi --ini /home/yanyang/VEXTestUI/config/uwsgi.ini
+process_name=vextestui
+numprocs=1
+autostart=true
+autorestart=true
 
 --------------------压力测试----------------------
 ab -c 100 -n 6000 http://127.0.0.1/
