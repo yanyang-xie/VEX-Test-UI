@@ -26,3 +26,16 @@ autorestart=true
 执行uwsgi --ini config/uwsgi.ini （可以启动supervisord去维护这个命令),执行后看看状态ps -ef | grep uwsgi
 合并nginx.conf到/etc/nginx.conf之后重启nginx
 
+--------------------压力测试----------------------
+ab -c 100 -n 6000 http://127.0.0.1/
+Percentage of the requests served within a certain time (ms)
+  50%    549
+  66%    566
+  75%    575
+  80%    582
+  90%    600
+  95%    614
+  98%    634
+  99%    648
+ 100%    711 (longest request)
+
