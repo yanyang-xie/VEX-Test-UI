@@ -14,10 +14,12 @@ from loadtest.util import get_current_day_start_date
 logger = logging.getLogger(__name__)
 
 def page_not_found(request):
-    return render_to_response('loadtest/error/404.html')
+    print 'go into 404'
+    return render_to_response('404.html')
 
 def page_error(request):
-    return render_to_response('loadtest/error/500.html')
+    print 'go into 500'
+    return render_to_response('500.html')
 
 # 关于
 # @cache_page(60 * 60 * 24)

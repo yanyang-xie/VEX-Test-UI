@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'cwe8m@a-kvqq@wzg)hhjsr*=e2a5lig+3!0wng2b4(x)mtk6s9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['*', '127.0.0.1']
@@ -128,11 +128,11 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         },
        'logfile': {
-            'level':'DEBUG',
+            'level':'INFO',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': LOG_FILE,
             'maxBytes': 1024 * 1024 * 5,
-            'backupCount': 2,
+            'backupCount': 5,
             'formatter': 'standard',
         },
         'console':{
