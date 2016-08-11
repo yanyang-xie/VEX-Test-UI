@@ -24,7 +24,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'cwe8m@a-kvqq@wzg)hhjsr*=e2a5lig+3!0wng2b4(x)mtk6s9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+DEBUG = True if __file__.find('/Users/xieyanyang') >= 0 else False
 TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['*', '127.0.0.1']

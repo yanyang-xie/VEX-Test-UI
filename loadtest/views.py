@@ -143,6 +143,27 @@ def insert_test_result_with_form(request):
             else:
                 errors.update(form.errors)
                 return HttpResponse(json.dumps({"errors": errors}), content_type="application/json", status=400)
+                '''
+                # 如果是UI，则可以直接在HttpResponse中直接返回form对象，由form.***.errors直接在页面显示错误
+                <form action="" method="post">
+                    <div class="field">
+                        {{ form.subject.errors }}
+                        <label for="id_subject">Subject:</label>
+                        {{ form.subject }}
+                    </div>
+                    <div class="field">
+                        {{ form.email.errors }}
+                        <label for="id_email">Your e-mail address:</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="field">
+                        {{ form.message.errors }}
+                        <label for="id_message">Message:</label>
+                        {{ form.message }}
+                    </div>
+                    <input type="submit" value="Submit">
+                </form>
+                '''
         else:   
             return HttpResponse("Request must be posted with XML body", status=400)
     except Exception, e:
