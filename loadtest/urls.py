@@ -15,11 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 
-from django.conf.urls import url
+from django.conf.urls import url, patterns
+
 
 handler404 = 'loadtest.views.page_not_found'
 handler500 = 'loadtest.views.page_error'
 
+'''
 urlpatterns = [
     url(r'^$', 'loadtest.views.show_latest', name='index'),
     url(r'^showLatest', 'loadtest.views.show_latest', name='latest'),
@@ -33,3 +35,19 @@ urlpatterns = [
     url(r'^insert', 'loadtest.views.insert_test_result_with_form', name='insert'),
     url(r'^about', 'loadtest.views.about', name='about'),
 ]
+'''
+
+# 提取公共模块出来。如果在不同的view里，那还可以多个urlpatterns连起来
+urlpatterns = patterns('loadtest.views',
+    url(r'^$', 'show_latest', name='index'),
+    url(r'^showLatest', 'show_latest', name='latest'),
+    url(r'^showAll/(?P<test_type>.*)', 'show_all_load_test_results', name='showAll'),
+    url(r'^showOne/(?P<test_id>.*)', 'show_one_load_test_result', name='showOne'),
+    url(r'^getAllByVersion/(?P<test_type>.*)/(?P<test_version>.*)', 'get_all_load_test_results_by_version', name='allByVersion'),
+    url(r'^getAllByModule/(?P<test_type>.*)/(?P<test_version>.*)/(?P<test_module>.*)', 'get_all_load_test_results_by_module', name='allByModule'),
+    url(r'^insert', 'insert_test_result_with_form', name='insert'),
+)
+
+urlpatterns += patterns('loadtest.views',
+    url(r'^about', 'about', name='about'),
+)
